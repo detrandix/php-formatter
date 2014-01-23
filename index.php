@@ -104,5 +104,7 @@ if( $a > NULL ) {
 foreach ($testing as $test) {
 	$formatter = new Formatter($test['settings']);
 
-	var_dump($test['expected'] === $formatter->format($test['original']));
+	$start = microtime(TRUE);
+	$result = $test['expected'] === $formatter->format($test['original']);
+	print ($result ? 'yes' : '-  ') . ' (' . round(microtime(TRUE) - $start, 4) . 's)' . PHP_EOL;
 }
