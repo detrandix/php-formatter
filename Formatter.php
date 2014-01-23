@@ -24,23 +24,23 @@ class Formatter
 		while (!$tokenQueue->isEmpty()) {
 			$token = $tokenQueue->dequeue();
 
-			if ($this->allowed('constants', 'uppercase') && $token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
+			if ($this->allowed('constants', 'uppercase') && $token->isType(T_STRING) && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
 				$token->setValue(strtoupper($token->getValue()));
 
 				$processedTokenQueue[] = $token;
-			} elseif ($token->isType('T_CONSTANT_ENCAPSED_STRING')) {
+			} elseif ($token->isType(T_CONSTANT_ENCAPSED_STRING)) {
 				$processedTokenQueue[] = $token;
 
 				if ($this->allowed('strings/join', 'whitespace') && $tokenQueue->bottom()->isSingleValue('.'))
 				{
-					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
+					$processedTokenQueue[] = new Token(' ', T_WHITESPACE);
 					$processedTokenQueue[] = $tokenQueue->dequeue(); // mezery kolem spojovani stringu
-					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
+					$processedTokenQueue[] = new Token(' ', T_WHITESPACE);
 				}
-			} elseif ($token->isType('T_IF')) {
+			} elseif ($token->isType(T_IF)) {
 				$processedTokenQueue[] = $token;
 
-				if ($tokenQueue->bottom()->isType('T_WHITESPACE')) { // odstraneni mezery v IF pred zavorkou
+				if ($tokenQueue->bottom()->isType(T_WHITESPACE)) { // odstraneni mezery v IF pred zavorkou
 					$token = $tokenQueue->dequeue();
 
 					if (!$this->allowed('if/before-brackets', 'none')) {
