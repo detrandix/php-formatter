@@ -1,101 +1,171 @@
 <?php
 
+class Token
+{
+
+	protected $value;
+
+	protected $type;
+
+	public function __construct($value, $type = NULL)
+	{
+		$this->value = $value;
+		$this->type = $type;
+	}
+
+	public static function createFromZendToken($zendToken)
+	{
+		if (is_array($zendToken)) {
+			$value = $zendToken[1];
+			$type = $zendToken[0];
+		} else {
+			$value = $zendToken;
+			$type = NULL;
+		}
+
+		return new self($value, $type);
+	}
+
+	public function isType($type)
+	{
+		if (is_int($type)) {
+			return $type === $this->type;
+		} else {
+			return (string) $type === token_name($this->type);
+		}
+	}
+
+	public function isSingleValue($value)
+	{
+		return $this->type === NULL && $this->value === $value;
+	}
+
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	public function setValue($value)
+	{
+		$this->value = $value;
+	}
+
+	public function __toString()
+	{
+		return $this->value;
+	}
+
+}
+
+class TokenQueue extends SplQueue
+{
+
+	public function __construct(array $queue = [])
+	{
+		foreach ($queue as $token) {
+			$this[] = $token;
+		}
+	}
+
+	public function dequeue()
+	{
+		$token = parent::dequeue();
+
+		return $token instanceof Token ? $token : Token::createFromZendToken($token);
+	}
+
+	public function bottom()
+	{
+		$token = parent::bottom();
+
+		return $token instanceof Token ? $token : Token::createFromZendToken($token);
+	}
+
+}
+
 class Formatter
 {
 
 	public function format($code)
 	{
-		$tokens = token_get_all($code);
+		$tokenQueue = new TokenQueue(token_get_all($code));
 
-		$this->render($this->processTokens($tokens, 0, count($tokens) - 1));
+		return $this->render($this->processTokenQueue($tokenQueue));
 	}
 
-	protected function processTokens($originalTokens, $startIndex, $endIndex)
+	protected function processTokenQueue(TokenQueue $tokenQueue)
 	{
-		$tokens = [];
+		$processedTokenQueue = new TokenQueue;
 
-		for ($i=$startIndex; $i <= $endIndex; $i++) {
-			$token = $originalTokens[$i];
+		while (!$tokenQueue->isEmpty()) {
+			$token = $tokenQueue->dequeue();
 
-			if (is_array($token)) {
-				// zvetseni konstant
-				if (token_name($token[0]) === 'T_STRING' && in_array(strtolower($token[1]), array('null', 'true', 'false'))) {
-					$token[1] = strtoupper($token[1]);
-					$tokens[] = $token;
-				} elseif (token_name($token[0]) === 'T_IF') {
-					$tokens[] = $token;
+			if ($token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
+				$token->setValue(strtoupper($token->getValue()));
 
-					$nextToken = $originalTokens[$i + 1];
+				$processedTokenQueue[] = $token;
+			} elseif ($token->isType('T_CONSTANT_ENCAPSED_STRING')) {
+				$processedTokenQueue[] = $token;
 
-					// odstraneni mezery v IF pred zavorkou
-					if ($this->isTokenType($nextToken, 'T_WHITESPACE')) {
-						$i++;
-					}
-
-					$tokens[] = '(';
-
-					$tokens[] = ' '; // mezera po zavorce
-
-					$position = $this->findPositionOfClosingBracket($originalTokens, $i + 1);
-
-					$tokens = array_merge($tokens, $this->processTokens($originalTokens, $i + 2, $position - 1));
-
-					$tokens[] = ' '; // mezera pred zavorce
-
-					$tokens[] = ')';
-
-					$i = $position;
-				} elseif ($this->isTokenType($token, 'T_CONSTANT_ENCAPSED_STRING')) {
-					$tokens[] = $token;
-
-					$nextToken = $originalTokens[$i + 1];
-
-					if ($nextToken === '.') {
-						$tokens[] = ' . ';
-						$i++;
-					}
-				} else {
-					$tokens[] = $token;
+				if ($tokenQueue->bottom()->isSingleValue('.'))
+				{
+					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
+					$processedTokenQueue[] = $tokenQueue->dequeue(); // mezery kolem spojovani stringu
+					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
 				}
+			} elseif ($token->isType('T_IF')) {
+				$processedTokenQueue[] = $token;
+
+				if ($tokenQueue->bottom()->isType('T_WHITESPACE')) { // odstraneni mezery v IF pred zavorkou
+					$tokenQueue->dequeue();
+				}
+
+				$bracketInnerQueue = new TokenQueue;
+				$level = 0;
+				do {
+					$innerToken = $tokenQueue->dequeue();
+
+					if ($innerToken->isSingleValue('(')) {
+						if ($level > 0) {
+							$bracketInnerQueue[] = $innerToken;
+						}
+
+						$level++;
+					} elseif ($innerToken->isSingleValue(')')) {
+						if ($level > 1) {
+							$bracketInnerQueue[] = $innerToken;
+						}
+
+						$level--;
+					} else {
+						$bracketInnerQueue[] = $innerToken;
+					}
+				} while ($level > 0);
+
+				$processedTokenQueue[] = '(';
+				$processedTokenQueue[] = ' '; // nepovinne
+
+				foreach ($this->processTokenQueue($bracketInnerQueue) as $processedToken) {
+					$processedTokenQueue[] = $processedToken;
+				}
+				$processedTokenQueue[] = ' '; // nepovinne
+				$processedTokenQueue[] = ')';
 			} else {
-				$tokens[] = $token;
+				$processedTokenQueue[] = $token;
 			}
 		}
 
-		return $tokens;
+		return $processedTokenQueue;
 	}
 
-	protected function findPositionOfClosingBracket($tokens, $from)
+	protected function render(TokenQueue $tokenQueue)
 	{
-		$level = 0;
-		for ($i=$from, $count=count($tokens); $i < $count; $i++) {
-			if ($tokens[$i] === '(') {
-				$level++;
-			} elseif ($tokens[$i] === ')') {
-				$level--;
-			}
-
-			if ($level === 0) {
-				return $i;
-			}
-		}
-	}
-
-	protected function isTokenType($token, $type)
-	{
-		return is_array($token) && token_name($token[0]) === $type;
-	}
-
-	protected function render($tokens)
-	{
-		foreach ($tokens as $token)
+		$string = '';
+		foreach ($tokenQueue as $token)
 		{
-			if (is_array($token)) {
-				print $token[1];
-			} else {
-				print $token;
-			}
+			$string .= $token;
 		}
+		return $string;
 	}
 
 }
@@ -110,7 +180,7 @@ DOC;
 
 $formatter = new Formatter;
 
-$formatter->format($code);
+$translatedCode = $formatter->format($code);
 
 $expectedCode = <<<DOC
 <?php
@@ -120,4 +190,4 @@ if( \$a > NULL ) {
 }
 DOC;
 
-var_dump($code === $expectedCode);
+var_dump($translatedCode === $expectedCode);
