@@ -24,14 +24,14 @@ class Formatter
 		while (!$tokenQueue->isEmpty()) {
 			$token = $tokenQueue->dequeue();
 
-			if (isset($this->settings['constants']['uppercase']) && $token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
+			if ($this->allowed('constants', 'uppercase') && $token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
 				$token->setValue(strtoupper($token->getValue()));
 
 				$processedTokenQueue[] = $token;
 			} elseif ($token->isType('T_CONSTANT_ENCAPSED_STRING')) {
 				$processedTokenQueue[] = $token;
 
-				if (isset($this->settings['strings']['join']) && $this->settings['strings']['join'] === 'whitespace' && $tokenQueue->bottom()->isSingleValue('.'))
+				if ($this->allowed('strings/join', 'whitespace') && $tokenQueue->bottom()->isSingleValue('.'))
 				{
 					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
 					$processedTokenQueue[] = $tokenQueue->dequeue(); // mezery kolem spojovani stringu
@@ -42,7 +42,8 @@ class Formatter
 
 				if ($tokenQueue->bottom()->isType('T_WHITESPACE')) { // odstraneni mezery v IF pred zavorkou
 					$token = $tokenQueue->dequeue();
-					if (!(isset($this->settings['if']['before bracket']) && $this->settings['if']['before bracket'] === 'none')) {
+
+					if (!$this->allowed('if/before-brackets', 'none')) {
 						$processedTokenQueue[] = $token;
 					}
 				}
@@ -70,12 +71,17 @@ class Formatter
 				} while ($level > 0);
 
 				$processedTokenQueue[] = '(';
-				//$processedTokenQueue[] = ' '; // nepovinne
+				if ($this->allowed('if/inside-brackets', 'whitespace')) {
+					$processedTokenQueue[] = ' ';
+				}
 
 				foreach ($this->processTokenQueue($bracketInnerQueue) as $processedToken) {
 					$processedTokenQueue[] = $processedToken;
 				}
-				//$processedTokenQueue[] = ' '; // nepovinne
+
+				if ($this->allowed('if/inside-brackets', 'whitespace')) {
+					$processedTokenQueue[] = ' ';
+				}
 				$processedTokenQueue[] = ')';
 			} else {
 				$processedTokenQueue[] = $token;
@@ -83,6 +89,30 @@ class Formatter
 		}
 
 		return $processedTokenQueue;
+	}
+
+	protected function allowed($action, $value)
+	{
+		$actions = explode('/', $action);
+
+		$settings = $this->settings;
+
+		$error = FALSE;
+		while (count($actions) > 0) {
+			$action = array_shift($actions);
+			if (isset($settings[$action])) {
+				$settings = $settings[$action];
+			} else {
+				$error = TRUE;
+				break;
+			}
+		}
+
+		if (!$error) {
+			return $settings === $value;
+		} else {
+			return FALSE;
+		}
 	}
 
 	protected function render(TokenQueue $tokenQueue)

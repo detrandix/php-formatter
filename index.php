@@ -21,7 +21,7 @@ if ($a > null) {
 }'
 	),
 	array(
-		'settings' => ['constants' => ['uppercase' => TRUE]],
+		'settings' => ['constants' => 'uppercase'],
 		'original' => '
 <?php
 
@@ -51,7 +51,7 @@ if ($a > null) {
 }'
 	),
 	array(
-		'settings' => ['if' => ['before bracket' => 'none']],
+		'settings' => ['if' => ['before-brackets' => 'none']],
 		'original' => '
 <?php
 
@@ -63,6 +63,40 @@ if ($a > null) {
 
 if($a > null) {
     echo "a"."b";
+}'
+	),
+	array(
+		'settings' => ['if' => ['inside-brackets' => 'whitespace']],
+		'original' => '
+<?php
+
+if ($a > null) {
+    echo "a"."b";
+}',
+		'expected' => '
+<?php
+
+if ( $a > null ) {
+    echo "a"."b";
+}'
+	),
+	array(
+		'settings' => [
+			'if' => ['before-brackets' => 'none', 'inside-brackets' => 'whitespace'],
+			'strings' => ['join' => 'whitespace'],
+			'constants' => 'uppercase'
+		],
+		'original' => '
+<?php
+
+if ($a > null) {
+    echo "a"."b";
+}',
+		'expected' => '
+<?php
+
+if( $a > NULL ) {
+    echo "a" . "b";
 }'
 	)
 );
