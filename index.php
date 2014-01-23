@@ -4,24 +4,71 @@ require_once dirname('.') . '/Formatter.php';
 require_once dirname('.') . '/Token.php';
 require_once dirname('.') . '/TokenQueue.php';
 
-$formatter = new Formatter;
-
-$originalCode = <<<DOC
+$testing = array(
+	array(
+		'settings' => [],
+		'original' => '
 <?php
 
-if (\$a > null) {
+if ($a > null) {
     echo "a"."b";
-}
-DOC;
-
-$expectedCode = <<<DOC
+}',
+		'expected' => '
 <?php
 
-if( \$a > NULL ) {
+if ($a > null) {
+    echo "a"."b";
+}'
+	),
+	array(
+		'settings' => ['constants' => ['uppercase' => TRUE]],
+		'original' => '
+<?php
+
+if ($a > null) {
+    echo "a"."b";
+}',
+		'expected' => '
+<?php
+
+if ($a > NULL) {
+    echo "a"."b";
+}'
+	),
+	array(
+		'settings' => ['strings' => ['join' => 'whitespace']],
+		'original' => '
+<?php
+
+if ($a > null) {
+    echo "a"."b";
+}',
+		'expected' => '
+<?php
+
+if ($a > null) {
     echo "a" . "b";
+}'
+	),
+	array(
+		'settings' => ['if' => ['before bracket' => 'none']],
+		'original' => '
+<?php
+
+if ($a > null) {
+    echo "a"."b";
+}',
+		'expected' => '
+<?php
+
+if($a > null) {
+    echo "a"."b";
+}'
+	)
+);
+
+foreach ($testing as $test) {
+	$formatter = new Formatter($test['settings']);
+
+	var_dump($test['expected'] === $formatter->format($test['original']));
 }
-DOC;
-
-$translatedCode = $formatter->format($originalCode);
-
-var_dump($translatedCode === $expectedCode);

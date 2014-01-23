@@ -3,6 +3,13 @@
 class Formatter
 {
 
+	protected $settings;
+
+	public function __construct($settings)
+	{
+		$this->settings = $settings;
+	}
+
 	public function format($code)
 	{
 		$tokenQueue = new TokenQueue(token_get_all($code));
@@ -17,14 +24,14 @@ class Formatter
 		while (!$tokenQueue->isEmpty()) {
 			$token = $tokenQueue->dequeue();
 
-			if ($token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
+			if (isset($this->settings['constants']['uppercase']) && $token->isType('T_STRING') && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
 				$token->setValue(strtoupper($token->getValue()));
 
 				$processedTokenQueue[] = $token;
 			} elseif ($token->isType('T_CONSTANT_ENCAPSED_STRING')) {
 				$processedTokenQueue[] = $token;
 
-				if ($tokenQueue->bottom()->isSingleValue('.'))
+				if (isset($this->settings['strings']['join']) && $this->settings['strings']['join'] === 'whitespace' && $tokenQueue->bottom()->isSingleValue('.'))
 				{
 					$processedTokenQueue[] = new Token(' ', 'T_WHITESPACE');
 					$processedTokenQueue[] = $tokenQueue->dequeue(); // mezery kolem spojovani stringu
@@ -34,7 +41,10 @@ class Formatter
 				$processedTokenQueue[] = $token;
 
 				if ($tokenQueue->bottom()->isType('T_WHITESPACE')) { // odstraneni mezery v IF pred zavorkou
-					$tokenQueue->dequeue();
+					$token = $tokenQueue->dequeue();
+					if (!(isset($this->settings['if']['before bracket']) && $this->settings['if']['before bracket'] === 'none')) {
+						$processedTokenQueue[] = $token;
+					}
 				}
 
 				$bracketInnerQueue = new TokenQueue;
@@ -60,12 +70,12 @@ class Formatter
 				} while ($level > 0);
 
 				$processedTokenQueue[] = '(';
-				$processedTokenQueue[] = ' '; // nepovinne
+				//$processedTokenQueue[] = ' '; // nepovinne
 
 				foreach ($this->processTokenQueue($bracketInnerQueue) as $processedToken) {
 					$processedTokenQueue[] = $processedToken;
 				}
-				$processedTokenQueue[] = ' '; // nepovinne
+				//$processedTokenQueue[] = ' '; // nepovinne
 				$processedTokenQueue[] = ')';
 			} else {
 				$processedTokenQueue[] = $token;
