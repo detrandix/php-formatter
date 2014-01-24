@@ -22,6 +22,8 @@ class Formatter
 				$this->transformations[] = new Transformation\Constants($value);
 			} elseif ($key === 'strings/join') {
 				$this->transformations[] = new Transformation\Strings\Join($value);
+			} elseif ($key === 'strings/semicolon') {
+				$this->transformations[] = new Transformation\Strings\Semicolon($value);
 			} elseif ($key === 'brackets') {
 				$this->transformations[] = new Transformation\Brackets($value);
 			}
