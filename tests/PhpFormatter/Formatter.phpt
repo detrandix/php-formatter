@@ -49,7 +49,7 @@ Assert::same($expected, $formatter->format($original));
 
 
 
-$formatter = new Formatter(['strings' => ['join' => 'whitespace']]);
+$formatter = new Formatter(['strings/join' => 'whitespace']);
 
 $original = <<<DOC
 <?php

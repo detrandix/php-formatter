@@ -7,9 +7,21 @@ class Formatter
 
 	protected $settings;
 
+	protected $changes;
+
 	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
+
+		$this->changes = [];
+
+		foreach ($settings as $key => $value) {
+			if ($key === 'constants') {
+				$this->changes[] = new Change\Constants($value);
+			} elseif ($key === 'strings/join') {
+				$this->changes[] = new Change\Strings\Join($value);
+			}
+		}
 	}
 
 	public function format($code)
@@ -26,19 +38,17 @@ class Formatter
 		while (!$tokenQueue->isEmpty()) {
 			$token = $tokenQueue->dequeue();
 
-			if ($this->allowed('constants', 'uppercase') && $token->isType(T_STRING) && in_array(strtolower($token->getValue()), ['null', 'true', 'false'])) { // zvetseni konstant
-				$token->setValue(strtoupper($token->getValue()));
-
-				$processedTokenQueue[] = $token;
-			} elseif ($token->isType(T_CONSTANT_ENCAPSED_STRING)) {
-				$processedTokenQueue[] = $token;
-
-				if ($this->allowed('strings/join', 'whitespace') && $tokenQueue->bottom()->isSingleValue('.'))
-				{
-					$processedTokenQueue[] = new Token(' ', T_WHITESPACE);
-					$processedTokenQueue[] = $tokenQueue->dequeue(); // mezery kolem spojovani stringu
-					$processedTokenQueue[] = new Token(' ', T_WHITESPACE);
+			$findedChange = FALSE;
+			foreach ($this->changes as $change) {
+				if ($change->canApply($token, $tokenQueue)) {
+					$change->apply($token, $tokenQueue, $processedTokenQueue);
+					$findedChange = TRUE;
+					break;
 				}
+			}
+
+			if ($findedChange) {
+
 			} elseif ($token->isType(T_IF)) {
 				$processedTokenQueue[] = $token;
 
