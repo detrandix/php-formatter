@@ -1,12 +1,12 @@
 <?php
 
-namespace PhpFormatter\Change\Strings;
+namespace PhpFormatter\Transformation\Strings;
 
-use PhpFormatter\Change\IChange;
+use PhpFormatter\Transformation\ITransformation;
 use PhpFormatter\Token;
 use PhpFormatter\TokenQueue;
 
-class Join implements IChange
+class Join implements ITransformation
 {
 
 	protected $setting;
@@ -28,7 +28,7 @@ class Join implements IChange
 	/**
 	 * @todo need improve
 	 */
-	public function apply(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue)
+	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue)
 	{
 		$outputQueue[] = $token;
 

@@ -1,11 +1,11 @@
 <?php
 
-namespace PhpFormatter\Change;
+namespace PhpFormatter\Transformation;
 
 use PhpFormatter\Token;
 use PhpFormatter\TokenQueue;
 
-class Constants implements IChange
+class Constants implements ITransformation
 {
 
 	protected $setting;
@@ -25,7 +25,7 @@ class Constants implements IChange
 		return $token->isType(T_STRING) && in_array(strtolower($token->getValue()), ['null', 'true', 'false']);
 	}
 
-	public function apply(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue)
+	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue)
 	{
 		if ($this->setting === 'lowercase') {
 			$token->setValue(strtolower($token->getValue()));

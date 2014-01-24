@@ -7,19 +7,19 @@ class Formatter
 
 	protected $settings;
 
-	protected $changes;
+	protected $transformations;
 
 	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
 
-		$this->changes = [];
+		$this->transformations = [];
 
 		foreach ($settings as $key => $value) {
 			if ($key === 'constants') {
-				$this->changes[] = new Change\Constants($value);
+				$this->transformations[] = new Transformation\Constants($value);
 			} elseif ($key === 'strings/join') {
-				$this->changes[] = new Change\Strings\Join($value);
+				$this->transformations[] = new Transformation\Strings\Join($value);
 			}
 		}
 	}
@@ -38,16 +38,16 @@ class Formatter
 		while (!$tokenQueue->isEmpty()) {
 			$token = $tokenQueue->dequeue();
 
-			$findedChange = FALSE;
-			foreach ($this->changes as $change) {
-				if ($change->canApply($token, $tokenQueue)) {
-					$change->apply($token, $tokenQueue, $processedTokenQueue);
-					$findedChange = TRUE;
+			$transformed = FALSE;
+			foreach ($this->transformations as $transformation) {
+				if ($transformation->canApply($token, $tokenQueue)) {
+					$transformation->transform($token, $tokenQueue, $processedTokenQueue);
+					$transformed = TRUE;
 					break;
 				}
 			}
 
-			if ($findedChange) {
+			if ($transformed) {
 
 			} elseif ($token->isType(T_IF)) {
 				$processedTokenQueue[] = $token;
