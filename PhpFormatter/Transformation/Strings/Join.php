@@ -5,6 +5,7 @@ namespace PhpFormatter\Transformation\Strings;
 use PhpFormatter\Transformation\ITransformation;
 use PhpFormatter\Token;
 use PhpFormatter\TokenQueue;
+use PhpFormatter\Formatter;
 
 class Join implements ITransformation
 {
@@ -28,7 +29,7 @@ class Join implements ITransformation
 	/**
 	 * @todo need improve
 	 */
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue)
+	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
 	{
 		$outputQueue[] = $token;
 

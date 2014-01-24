@@ -71,7 +71,7 @@ Assert::same($expected, $formatter->format($original));
 
 
 
-$formatter = new Formatter(['if' => ['before-brackets' => 'none']]);
+$formatter = new Formatter(['brackets' => ['before' => 'none']]);
 
 $original = <<<DOC
 <?php
@@ -93,7 +93,7 @@ Assert::same($expected, $formatter->format($original));
 
 
 
-$formatter = new Formatter(['if' => ['inside-brackets' => 'whitespace']]);
+$formatter = new Formatter(['brackets' => ['inside' => 'whitespace']]);
 
 $original = <<<DOC
 <?php
