@@ -11,6 +11,7 @@ $tokenQueue = new TokenQueue(['.', $token]);
 
 Assert::same($tokenQueue->count(), 2);
 
+Assert::true($tokenQueue->top() instanceof Token);
 Assert::true($tokenQueue->bottom() instanceof Token);
 
 Assert::true(($token = $tokenQueue->dequeue()) instanceof Token);
