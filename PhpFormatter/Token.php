@@ -1,5 +1,7 @@
 <?php
 
+namespace PhpFormatter;
+
 class Token
 {
 
@@ -28,7 +30,9 @@ class Token
 
 	public function isType($type)
 	{
-		if (is_int($type)) {
+		if ($type === NULL) {
+			return $this->type === $type;
+		} elseif (is_int($type)) {
 			return $type === $this->type;
 		} else {
 			return (string) $type === token_name($this->type);

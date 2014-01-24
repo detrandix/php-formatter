@@ -1,6 +1,8 @@
 <?php
 
-class TokenQueue extends SplQueue
+namespace PhpFormatter;
+
+class TokenQueue extends \SplQueue
 {
 
 	public function __construct(array $queue = [])

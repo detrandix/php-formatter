@@ -1,11 +1,13 @@
 <?php
 
+namespace PhpFormatter;
+
 class Formatter
 {
 
 	protected $settings;
 
-	public function __construct($settings)
+	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
 	}

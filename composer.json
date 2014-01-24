@@ -1,0 +1,16 @@
+{
+	"name": "detrandix/php-formatter",
+	"authors": [
+		{
+			"name": "Tomáš Lang"
+		}
+	],
+	"autoload": {
+		"psr-0": {
+			"PhpFormatter": ""
+		}
+	},
+	"require-dev": {
+		"nette/tester": "dev-master"
+	}
+}
