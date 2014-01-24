@@ -20,7 +20,6 @@ class Constants implements ITransformation
 		$this->setting = $setting;
 	}
 
-
 	public function canApply(Token $token, TokenQueue $queue)
 	{
 		return $token->isType(T_STRING) && in_array(strtolower($token->getValue()), ['null', 'true', 'false']);

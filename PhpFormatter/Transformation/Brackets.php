@@ -13,7 +13,7 @@ class Brackets implements ITransformation
 
 	public function __construct($setting)
 	{
-		$this->setting = ['before' => NULL, 'after' => NULL, 'inside' => NULL];
+		$this->setting = ['before' => NULL, 'inside' => NULL];
 
 		foreach ((array) $setting as $key => $value) {
 			if (!($value === NULL || in_array($value, ['none', 'whitespace']))) {
@@ -69,16 +69,20 @@ class Brackets implements ITransformation
 
 		$outputQueue[] = '(';
 
-		if ($this->setting['inside'] === 'whitespace') {
-			$outputQueue[] = ' ';
+		if ($this->setting['inside'] === 'whitespace' && !$bracketInnerQueue->bottom()->isType(T_WHITESPACE)) {
+			$outputQueue[] = new Token(' ', T_WHITESPACE);
+		} elseif ($this->setting['inside'] === 'none' && $bracketInnerQueue->bottom()->isType(T_WHITESPACE)) {
+			$bracketInnerQueue->dequeue();
 		}
 
 		foreach ($formatter->processTokenQueue($bracketInnerQueue) as $processedToken) {
 			$outputQueue[] = $processedToken;
 		}
 
-		if ($this->setting['inside'] === 'whitespace') {
-			$outputQueue[] = ' ';
+		if ($this->setting['inside'] === 'whitespace' && !$outputQueue->top()->isType(T_WHITESPACE)) {
+			$outputQueue[] = new Token(' ', T_WHITESPACE);
+		} elseif ($this->setting['inside'] === 'none' && $bracketInnerQueue->top()->isType(T_WHITESPACE)) {
+			$bracketInnerQueue->pop();
 		}
 
 		$outputQueue[] = ')';
