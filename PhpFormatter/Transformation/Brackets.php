@@ -26,7 +26,7 @@ class Brackets implements ITransformation
 
 	public function canApply(Token $token, TokenQueue $queue)
 	{
-		return $token->isSingleValue('(') || ($token->isType(T_WHITESPACE) && $queue->bottom()->isSingleValue('('));
+		return $token->isSingleValue('(') || ($token->isType(T_WHITESPACE) && $queue->count() > 0 && $queue->bottom()->isSingleValue('('));
 	}
 
 	/**
@@ -81,8 +81,8 @@ class Brackets implements ITransformation
 
 		if ($this->setting['inside'] === 'whitespace' && !$outputQueue->top()->isType(T_WHITESPACE)) {
 			$outputQueue[] = new Token(' ', T_WHITESPACE);
-		} elseif ($this->setting['inside'] === 'none' && $bracketInnerQueue->top()->isType(T_WHITESPACE)) {
-			$bracketInnerQueue->pop();
+		} elseif ($this->setting['inside'] === 'none' && $outputQueue->top()->isType(T_WHITESPACE)) {
+			$outputQueue->pop();
 		}
 
 		$outputQueue[] = ')';
