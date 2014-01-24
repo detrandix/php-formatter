@@ -9,6 +9,8 @@ class Formatter
 
 	protected $transformations;
 
+	protected $lastTransformation = NULL;
+
 	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
@@ -44,6 +46,7 @@ class Formatter
 			foreach ($this->transformations as $transformation) {
 				if ($transformation->canApply($token, $tokenQueue)) {
 					$transformation->transform($token, $tokenQueue, $processedTokenQueue, $this);
+					$this->lastTransformation = $transformation;
 					$transformed = TRUE;
 					break;
 				}
@@ -51,10 +54,16 @@ class Formatter
 
 			if (!$transformed) {
 				$processedTokenQueue[] = $token;
+				$this->lastTransformation = NULL;
 			}
 		}
 
 		return $processedTokenQueue;
+	}
+
+	public function getLastTransformation()
+	{
+		return $this->lastTransformation;
 	}
 
 	protected function render(TokenQueue $tokenQueue)

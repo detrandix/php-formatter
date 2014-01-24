@@ -24,3 +24,16 @@ if (\$a > null) {
 DOC;
 
 Assert::same($expected, $formatter->format($original));
+
+
+
+$formatter = new Formatter(['constants' => 'uppercase']);
+
+$original = <<<DOC
+<?php
+
+null
+DOC;
+
+$formatter->format($original);
+Assert::true($formatter->getLastTransformation() instanceof PhpFormatter\Transformation\Constants);
