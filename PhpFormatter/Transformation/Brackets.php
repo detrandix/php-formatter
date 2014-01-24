@@ -29,15 +29,26 @@ class Brackets implements ITransformation
 		return $token->isSingleValue('(') || ($token->isType(T_WHITESPACE) && $queue->count() > 0 && $queue->bottom()->isSingleValue('('));
 	}
 
-	/**
-	 * @todo need improve
-	 */
 	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
 	{
-		if ($this->setting['before'] === 'whitespace' && $token->isSingleValue('(')) {
-			$outputQueue[] = new Token(' ', T_WHITESPACE);
-		} elseif ($this->setting['before'] === 'none' && $token->isType(T_WHITESPACE)) {
-			$token = $inputQueue->dequeue();
+		if (
+			$outputQueue->count() > 0
+			&& (
+				$outputQueue->top()->isType(T_IF)
+				|| $outputQueue->top()->isType(T_FOR)
+				|| $outputQueue->top()->isType(T_FOREACH)
+				|| $outputQueue->top()->isType(T_WHILE)
+				|| $outputQueue->top()->isType(T_SWITCH)
+			)
+		) {
+			if ($this->setting['before'] === 'whitespace' && $token->isSingleValue('(')) {
+				$outputQueue[] = new Token(' ', T_WHITESPACE);
+			} elseif ($this->setting['before'] === 'none' && $token->isType(T_WHITESPACE)) {
+				$token = $inputQueue->dequeue();
+			} elseif ($token->isType(T_WHITESPACE)) {
+				$outputQueue[] = $token;
+				$token = $inputQueue->dequeue();
+			}
 		} else {
 			if ($token->isType(T_WHITESPACE)) {
 				$outputQueue[] = $token;

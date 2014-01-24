@@ -49,7 +49,6 @@ Assert::same($expected, $formatter->format($original));
 
 
 
-
 $formatter = new Formatter(['brackets' => ['inside' => 'whitespace']]);
 
 $original = <<<DOC
@@ -71,6 +70,26 @@ DOC;
 Assert::same($expected, $formatter->format($original));
 
 
+
+$formatter = new Formatter(['brackets' => ['inside' => 'whitespace', 'before' => 'none']]);
+
+$original = <<<DOC
+<?php
+
+if ((\$a & \$b) || ((true) || (false))) {
+	echo "true";
+}
+DOC;
+
+$expected = <<<DOC
+<?php
+
+if( ( \$a & \$b ) || ( ( true ) || ( false ) ) ) {
+	echo "true";
+}
+DOC;
+
+Assert::same($expected, $formatter->format($original));
 
 
 
