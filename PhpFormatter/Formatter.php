@@ -11,6 +11,14 @@ class Formatter
 
 	protected $lastTransformation = NULL;
 
+	protected static $transformationClassMap = [
+		'constants' => 'PhpFormatter\\Transformation\\Constants',
+		'strings/join' => 'PhpFormatter\\Transformation\\Strings\\Join',
+		'strings/semicolon' => 'PhpFormatter\\Transformation\\Strings\\Semicolon',
+		'brackets' => 'PhpFormatter\\Transformation\\Brackets',
+		'curly-brackets' => 'PhpFormatter\\Transformation\\CurlyBrackets'
+	];
+
 	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
@@ -18,16 +26,8 @@ class Formatter
 		$this->transformations = [];
 
 		foreach ($settings as $key => $value) {
-			if ($key === 'constants') {
-				$this->transformations[] = new Transformation\Constants($value);
-			} elseif ($key === 'strings/join') {
-				$this->transformations[] = new Transformation\Strings\Join($value);
-			} elseif ($key === 'strings/semicolon') {
-				$this->transformations[] = new Transformation\Strings\Semicolon($value);
-			} elseif ($key === 'brackets') {
-				$this->transformations[] = new Transformation\Brackets($value);
-			} elseif ($key === 'curly-brackets') {
-				$this->transformations[] = new Transformation\CurlyBrackets($value);
+			if (isset(self::$transformationClassMap[$key])) {
+				$this->transformations[] = new self::$transformationClassMap[$key]($value);
 			}
 		}
 	}
