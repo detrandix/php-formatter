@@ -19,6 +19,13 @@ class TokenQueue extends \SplQueue
 		return $token instanceof Token ? $token : Token::createFromZendToken($token);
 	}
 
+	public function pop()
+	{
+		$token = parent::pop();
+
+		return $token instanceof Token ? $token : Token::createFromZendToken($token);
+	}
+
 	public function bottom()
 	{
 		$token = parent::bottom();

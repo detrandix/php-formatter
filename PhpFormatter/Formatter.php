@@ -26,6 +26,8 @@ class Formatter
 				$this->transformations[] = new Transformation\Strings\Semicolon($value);
 			} elseif ($key === 'brackets') {
 				$this->transformations[] = new Transformation\Brackets($value);
+			} elseif ($key === 'curly-brackets') {
+				$this->transformations[] = new Transformation\CurlyBrackets($value);
 			}
 		}
 	}
