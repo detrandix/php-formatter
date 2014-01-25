@@ -57,6 +57,8 @@ $original = <<<DOC
 if(true) {
 	echo "true";
 }
+
+function();
 DOC;
 
 $expected = <<<DOC
@@ -65,6 +67,8 @@ $expected = <<<DOC
 if( true ) {
 	echo "true";
 }
+
+function();
 DOC;
 
 Assert::same($expected, $formatter->format($original));
@@ -101,6 +105,8 @@ $original = <<<DOC
 if ( true ) {
 	echo "true";
 }
+
+function();
 DOC;
 
 $expected = <<<DOC
@@ -109,6 +115,8 @@ $expected = <<<DOC
 if (true) {
 	echo "true";
 }
+
+function();
 DOC;
 
 Assert::same($expected, $formatter->format($original));

@@ -80,9 +80,9 @@ class Brackets implements ITransformation
 
 		$outputTokenList[] = '(';
 
-		if ($this->setting['inside'] === 'whitespace' && !$bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
+		if ($this->setting['inside'] === 'whitespace' && !$bracketInnerTokenList->isEmpty() && !$bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
 			$outputTokenList[] = new Token(' ', T_WHITESPACE);
-		} elseif ($this->setting['inside'] === 'none' && $bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
+		} elseif ($this->setting['inside'] === 'none' && !$bracketInnerTokenList->isEmpty() && $bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
 			$bracketInnerTokenList->shift();
 		}
 
@@ -90,7 +90,7 @@ class Brackets implements ITransformation
 			$outputTokenList[] = $processedToken;
 		}
 
-		if ($this->setting['inside'] === 'whitespace' && !$outputTokenList->tail()->isType(T_WHITESPACE)) {
+		if ($this->setting['inside'] === 'whitespace' && !$outputTokenList->tail()->isType(T_WHITESPACE) && !$outputTokenList->tail()->isSingleValue('(')) {
 			$outputTokenList[] = new Token(' ', T_WHITESPACE);
 		} elseif ($this->setting['inside'] === 'none' && $outputTokenList->tail()->isType(T_WHITESPACE)) {
 			$outputTokenList->pop();
