@@ -12,5 +12,6 @@
 	},
 	"require-dev": {
 		"nette/tester": "dev-master"
-	}
+	},
+	"bin": ["PhpFormatter/php-formatter"]
 }
