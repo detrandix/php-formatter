@@ -17,7 +17,7 @@ class Brackets implements ITransformation
 
 		foreach ((array) $setting as $key => $value) {
 			if (!($value === NULL || in_array($value, ['none', 'whitespace']))) {
-				throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}'.");
+				throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}' in Brackets transformation.");
 			}
 
 			$this->setting[$key] = $value;

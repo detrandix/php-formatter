@@ -15,7 +15,7 @@ class Semicolon implements ITransformation
 	public function __construct($setting)
 	{
 		if (!($setting === NULL || in_array($setting, ['newline']))) {
-			throw new \InvalidArgumentException("Unknown setting '{$setting}'.");
+			throw new \InvalidArgumentException("Unknown setting '{$setting}' in String\Semicolon transformation.");
 		}
 
 		$this->setting = $setting;

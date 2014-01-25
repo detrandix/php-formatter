@@ -18,19 +18,19 @@ class CurlyBrackets implements ITransformation
 		foreach ((array) $setting as $key => $value) {
 			if ($key === 'before-first-bracket') {
 				if (!($value === NULL || in_array($value, ['none', 'whitespace', 'newline', 'newline tab']))) {
-					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}'.");
+					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}' in CurlyBrackets transformation.");
 				}
 
 				$this->setting[$key] = $value;
 			} elseif ($key === 'before-last-bracket') {
 				if (!($value === NULL || in_array($value, ['none', 'tab']))) {
-					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}'.");
+					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}' in CurlyBrackets transformation.");
 				}
 
 				$this->setting[$key] = $value;
 			} elseif ($key === 'before-content') {
 				if (!($value === NULL || in_array($value, ['none', 'tab']))) {
-					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}'.");
+					throw new \InvalidArgumentException("Unknown setting '{$value}' for key '{$key}' in CurlyBrackets transformation.");
 				}
 
 				$this->setting[$key] = $value;

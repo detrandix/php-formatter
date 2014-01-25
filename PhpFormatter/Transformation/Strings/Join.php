@@ -15,7 +15,7 @@ class Join implements ITransformation
 	public function __construct($setting)
 	{
 		if (!($setting === NULL || in_array($setting, ['none', 'whitespace', 'left', 'right']))) {
-			throw new \InvalidArgumentException("Unknown setting '{$setting}'.");
+			throw new \InvalidArgumentException("Unknown setting '{$setting}' in Strings\Join transformation.");
 		}
 
 		$this->setting = $setting;

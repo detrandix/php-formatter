@@ -14,7 +14,7 @@ class Constants implements ITransformation
 	public function __construct($setting)
 	{
 		if (!($setting === NULL || in_array($setting, ['lowercase', 'uppercase']))) {
-			throw new \InvalidArgumentException("Unknown setting '{$setting}'.");
+			throw new \InvalidArgumentException("Unknown setting '{$setting}' in Constants transformation.");
 		}
 
 		$this->setting = $setting;
