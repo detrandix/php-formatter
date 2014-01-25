@@ -3,7 +3,7 @@
 namespace PhpFormatter\Transformation;
 
 use PhpFormatter\Token;
-use PhpFormatter\TokenQueue;
+use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class Brackets implements ITransformation
@@ -24,79 +24,79 @@ class Brackets implements ITransformation
 		}
 	}
 
-	public function canApply(Token $token, TokenQueue $queue)
+	public function canApply(Token $token, TokenList $tokenList)
 	{
-		return $token->isSingleValue('(') || ($token->isType(T_WHITESPACE) && $queue->count() > 0 && $queue->bottom()->isSingleValue('('));
+		return $token->isSingleValue('(') || ($token->isType(T_WHITESPACE) && $tokenList->count() > 0 && $tokenList->head()->isSingleValue('('));
 	}
 
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
+	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter)
 	{
 		if (
-			$outputQueue->count() > 0
+			$outputTokenList->count() > 0
 			&& (
-				$outputQueue->top()->isType(T_IF)
-				|| $outputQueue->top()->isType(T_FOR)
-				|| $outputQueue->top()->isType(T_FOREACH)
-				|| $outputQueue->top()->isType(T_WHILE)
-				|| $outputQueue->top()->isType(T_SWITCH)
+				$outputTokenList->tail()->isType(T_IF)
+				|| $outputTokenList->tail()->isType(T_FOR)
+				|| $outputTokenList->tail()->isType(T_FOREACH)
+				|| $outputTokenList->tail()->isType(T_WHILE)
+				|| $outputTokenList->tail()->isType(T_SWITCH)
 			)
 		) {
 			if ($this->setting['before'] === 'whitespace' && $token->isSingleValue('(')) {
-				$outputQueue[] = new Token(' ', T_WHITESPACE);
+				$outputTokenList[] = new Token(' ', T_WHITESPACE);
 			} elseif ($this->setting['before'] === 'none' && $token->isType(T_WHITESPACE)) {
-				$token = $inputQueue->dequeue();
+				$token = $inputTokenList->shift();
 			} elseif ($token->isType(T_WHITESPACE)) {
-				$outputQueue[] = $token;
-				$token = $inputQueue->dequeue();
+				$outputTokenList[] = $token;
+				$token = $inputTokenList->shift();
 			}
 		} else {
 			if ($token->isType(T_WHITESPACE)) {
-				$outputQueue[] = $token;
-				$token = $inputQueue->dequeue();
+				$outputTokenList[] = $token;
+				$token = $inputTokenList->shift();
 			}
 		}
 
-		$bracketInnerQueue = new TokenQueue;
+		$bracketInnerTokenList = new TokenList;
 		$level = 1;
 		do {
-			$innerToken = $inputQueue->dequeue();
+			$innerToken = $inputTokenList->shift();
 
 			if ($innerToken->isSingleValue('(')) {
 				if ($level > 0) {
-					$bracketInnerQueue[] = $innerToken;
+					$bracketInnerTokenList[] = $innerToken;
 				}
 
 				$level++;
 			} elseif ($innerToken->isSingleValue(')')) {
 				if ($level > 1) {
-					$bracketInnerQueue[] = $innerToken;
+					$bracketInnerTokenList[] = $innerToken;
 				}
 
 				$level--;
 			} else {
-				$bracketInnerQueue[] = $innerToken;
+				$bracketInnerTokenList[] = $innerToken;
 			}
 		} while ($level > 0);
 
-		$outputQueue[] = '(';
+		$outputTokenList[] = '(';
 
-		if ($this->setting['inside'] === 'whitespace' && !$bracketInnerQueue->bottom()->isType(T_WHITESPACE)) {
-			$outputQueue[] = new Token(' ', T_WHITESPACE);
-		} elseif ($this->setting['inside'] === 'none' && $bracketInnerQueue->bottom()->isType(T_WHITESPACE)) {
-			$bracketInnerQueue->dequeue();
+		if ($this->setting['inside'] === 'whitespace' && !$bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
+			$outputTokenList[] = new Token(' ', T_WHITESPACE);
+		} elseif ($this->setting['inside'] === 'none' && $bracketInnerTokenList->head()->isType(T_WHITESPACE)) {
+			$bracketInnerTokenList->shift();
 		}
 
-		foreach ($formatter->processTokenQueue($bracketInnerQueue) as $processedToken) {
-			$outputQueue[] = $processedToken;
+		foreach ($formatter->processTokenList($bracketInnerTokenList) as $processedToken) {
+			$outputTokenList[] = $processedToken;
 		}
 
-		if ($this->setting['inside'] === 'whitespace' && !$outputQueue->top()->isType(T_WHITESPACE)) {
-			$outputQueue[] = new Token(' ', T_WHITESPACE);
-		} elseif ($this->setting['inside'] === 'none' && $outputQueue->top()->isType(T_WHITESPACE)) {
-			$outputQueue->pop();
+		if ($this->setting['inside'] === 'whitespace' && !$outputTokenList->tail()->isType(T_WHITESPACE)) {
+			$outputTokenList[] = new Token(' ', T_WHITESPACE);
+		} elseif ($this->setting['inside'] === 'none' && $outputTokenList->tail()->isType(T_WHITESPACE)) {
+			$outputTokenList->pop();
 		}
 
-		$outputQueue[] = ')';
+		$outputTokenList[] = ')';
 	}
 
 }

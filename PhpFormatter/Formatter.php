@@ -34,22 +34,22 @@ class Formatter
 
 	public function format($code)
 	{
-		$tokenQueue = new TokenQueue(token_get_all($code));
+		$tokenList = new TokenList(token_get_all($code));
 
-		return $this->render($this->processTokenQueue($tokenQueue));
+		return $this->render($this->processTokenList($tokenList));
 	}
 
-	public function processTokenQueue(TokenQueue $tokenQueue)
+	public function processTokenList(TokenList $tokenList)
 	{
-		$processedTokenQueue = new TokenQueue;
+		$processedTokenList = new TokenList;
 
-		while (!$tokenQueue->isEmpty()) {
-			$token = $tokenQueue->dequeue();
+		while (!$tokenList->isEmpty()) {
+			$token = $tokenList->shift();
 
 			$transformed = FALSE;
 			foreach ($this->transformations as $transformation) {
-				if ($transformation->canApply($token, $tokenQueue)) {
-					$transformation->transform($token, $tokenQueue, $processedTokenQueue, $this);
+				if ($transformation->canApply($token, $tokenList)) {
+					$transformation->transform($token, $tokenList, $processedTokenList, $this);
 					$this->lastTransformation = $transformation;
 					$transformed = TRUE;
 					break;
@@ -57,12 +57,12 @@ class Formatter
 			}
 
 			if (!$transformed) {
-				$processedTokenQueue[] = $token;
+				$processedTokenList[] = $token;
 				$this->lastTransformation = NULL;
 			}
 		}
 
-		return $processedTokenQueue;
+		return $processedTokenList;
 	}
 
 	public function getLastTransformation()
@@ -70,10 +70,10 @@ class Formatter
 		return $this->lastTransformation;
 	}
 
-	protected function render(TokenQueue $tokenQueue)
+	protected function render(TokenList $tokenList)
 	{
 		$string = '';
-		foreach ($tokenQueue as $token)
+		foreach ($tokenList as $token)
 		{
 			$string .= $token;
 		}

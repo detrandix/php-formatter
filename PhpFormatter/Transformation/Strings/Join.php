@@ -4,7 +4,7 @@ namespace PhpFormatter\Transformation\Strings;
 
 use PhpFormatter\Transformation\ITransformation;
 use PhpFormatter\Token;
-use PhpFormatter\TokenQueue;
+use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class Join implements ITransformation
@@ -21,34 +21,34 @@ class Join implements ITransformation
 		$this->setting = $setting;
 	}
 
-	public function canApply(Token $token, TokenQueue $queue)
+	public function canApply(Token $token, TokenList $tokenList)
 	{
 		return $token->isSingleValue('.');
 	}
 
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
+	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter)
 	{
 		if ($this->setting === 'none' || $this->setting === 'right') {
-			if ($outputQueue->top()->isType(T_WHITESPACE)) {
-				$outputQueue->pop();
+			if ($outputTokenList->tail()->isType(T_WHITESPACE)) {
+				$outputTokenList->pop();
 			}
 		} elseif ($this->setting === 'whitespace' || $this->setting === 'left') {
-			if (!$outputQueue->top()->isType(T_WHITESPACE)) {
-				$outputQueue[] = new Token(' ', T_WHITESPACE);
+			if (!$outputTokenList->tail()->isType(T_WHITESPACE)) {
+				$outputTokenList[] = new Token(' ', T_WHITESPACE);
 			}
 		}
 
-		$outputQueue[] = $token;
+		$outputTokenList[] = $token;
 
 		if ($this->setting === 'none' || $this->setting === 'left') {
-			if ($inputQueue->bottom()->isType(T_WHITESPACE)) {
-				$inputQueue->dequeue();
+			if ($inputTokenList->head()->isType(T_WHITESPACE)) {
+				$inputTokenList->shift();
 			}
 		} elseif ($this->setting === 'whitespace' || $this->setting === 'right') {
-			if (!$inputQueue->bottom()->isType(T_WHITESPACE)) {
-				$outputQueue[] = new Token(' ', T_WHITESPACE);
+			if (!$inputTokenList->head()->isType(T_WHITESPACE)) {
+				$outputTokenList[] = new Token(' ', T_WHITESPACE);
 			} else {
-				$outputQueue[] = $inputQueue->dequeue();
+				$outputTokenList[] = $inputTokenList->shift();
 			}
 		}
 	}

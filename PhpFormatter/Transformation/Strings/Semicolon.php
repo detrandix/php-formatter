@@ -4,7 +4,7 @@ namespace PhpFormatter\Transformation\Strings;
 
 use PhpFormatter\Transformation\ITransformation;
 use PhpFormatter\Token;
-use PhpFormatter\TokenQueue;
+use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class Semicolon implements ITransformation
@@ -21,26 +21,26 @@ class Semicolon implements ITransformation
 		$this->setting = $setting;
 	}
 
-	public function canApply(Token $token, TokenQueue $queue)
+	public function canApply(Token $token, TokenList $tokenList)
 	{
 		return $token->isSingleValue(';');
 	}
 
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
+	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter)
 	{
-		$outputQueue[] = $token;
+		$outputTokenList[] = $token;
 
 		if ($this->setting === 'newline') {
-			if ($inputQueue->count() && $inputQueue->bottom()->isType(T_WHITESPACE)) {
-				$token = $inputQueue->dequeue();
+			if ($inputTokenList->count() && $inputTokenList->head()->isType(T_WHITESPACE)) {
+				$token = $inputTokenList->shift();
 
 				if (!preg_match('/^\\n/m', $token->getValue())) {
 					$token->setValue("\n" . $token->getValue());
 				}
 
-				$outputQueue[] = $token;
+				$outputTokenList[] = $token;
 			} else {
-				$outputQueue[] = new Token("\n", T_WHITESPACE);
+				$outputTokenList[] = new Token("\n", T_WHITESPACE);
 			}
 		}
 	}

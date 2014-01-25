@@ -3,7 +3,7 @@
 namespace PhpFormatter\Transformation;
 
 use PhpFormatter\Token;
-use PhpFormatter\TokenQueue;
+use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class Constants implements ITransformation
@@ -20,12 +20,12 @@ class Constants implements ITransformation
 		$this->setting = $setting;
 	}
 
-	public function canApply(Token $token, TokenQueue $queue)
+	public function canApply(Token $token, TokenList $tokenList)
 	{
 		return $token->isType(T_STRING) && in_array(strtolower($token->getValue()), ['null', 'true', 'false']);
 	}
 
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
+	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter)
 	{
 		if ($this->setting === 'lowercase') {
 			$token->setValue(strtolower($token->getValue()));
@@ -33,7 +33,7 @@ class Constants implements ITransformation
 			$token->setValue(strtoupper($token->getValue()));
 		}
 
-		$outputQueue[] = $token;
+		$outputTokenList[] = $token;
 	}
 
 }

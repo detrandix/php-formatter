@@ -3,7 +3,7 @@
 namespace PhpFormatter\Transformation;
 
 use PhpFormatter\Token;
-use PhpFormatter\TokenQueue;
+use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class CurlyBrackets implements ITransformation
@@ -38,123 +38,123 @@ class CurlyBrackets implements ITransformation
 		}
 	}
 
-	public function canApply(Token $token, TokenQueue $queue)
+	public function canApply(Token $token, TokenList $tokenList)
 	{
-		return $token->isSingleValue('{') || ($token->isType(T_WHITESPACE) && $queue->count() > 0 && $queue->bottom()->isSingleValue('{'));
+		return $token->isSingleValue('{') || ($token->isType(T_WHITESPACE) && $tokenList->count() > 0 && $tokenList->head()->isSingleValue('{'));
 	}
 
-	public function transform(Token $token, TokenQueue $inputQueue, TokenQueue $outputQueue, Formatter $formatter)
+	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter)
 	{
 		switch ($this->setting['before-first-bracket']) {
 			case 'none':
 				if ($token->isType(T_WHITESPACE)) {
-					$token = $inputQueue->dequeue();
+					$token = $inputTokenList->shift();
 				}
 				break;
 			case 'whitespace':
 				if ($token->isSingleValue('{')) {
-					$outputQueue[] = new Token(' ', T_WHITESPACE);
+					$outputTokenList[] = new Token(' ', T_WHITESPACE);
 				} else {
 					$token->setValue(' ');
-					$outputQueue[] = $token;
-					$token = $inputQueue->dequeue();
+					$outputTokenList[] = $token;
+					$token = $inputTokenList->shift();
 				}
 				break;
 			case 'newline':
 				if ($token->isSingleValue('{')) {
-					$outputQueue[] = new Token("\n", T_WHITESPACE);
+					$outputTokenList[] = new Token("\n", T_WHITESPACE);
 				} else {
 					$token->setValue("\n");
-					$outputQueue[] = $token;
-					$token = $inputQueue->dequeue();
+					$outputTokenList[] = $token;
+					$token = $inputTokenList->shift();
 				}
 				break;
 			case 'newline tab':
 				if ($token->isSingleValue('{')) {
-					$outputQueue[] = new Token("\n\t", T_WHITESPACE);
+					$outputTokenList[] = new Token("\n\t", T_WHITESPACE);
 				} else {
 					$token->setValue("\n\t");
-					$outputQueue[] = $token;
-					$token = $inputQueue->dequeue();
+					$outputTokenList[] = $token;
+					$token = $inputTokenList->shift();
 				}
 				break;
 			default:
 				if ($token->isType(T_WHITESPACE)) {
-					$outputQueue[] = $token;
-					$token = $inputQueue->dequeue();
+					$outputTokenList[] = $token;
+					$token = $inputTokenList->shift();
 				}
 				break;
 		}
 
-		$outputQueue[] = $token;
+		$outputTokenList[] = $token;
 
-		if (!$inputQueue->bottom()->isType(T_WHITESPACE)) {
-			$outputQueue[] = new Token("\n", T_WHITESPACE);
+		if (!$inputTokenList->head()->isType(T_WHITESPACE)) {
+			$outputTokenList[] = new Token("\n", T_WHITESPACE);
 		}
 
-		$bracketInnerQueue = new TokenQueue;
+		$bracketInnerTokenList = new TokenList;
 		$level = 1;
 		do {
-			$innerToken = $inputQueue->dequeue();
+			$innerToken = $inputTokenList->shift();
 
 			if ($innerToken->isSingleValue('{')) {
 				if ($level > 0) {
-					$bracketInnerQueue[] = $innerToken;
+					$bracketInnerTokenList[] = $innerToken;
 				}
 
 				$level++;
 			} elseif ($innerToken->isSingleValue('}')) {
 				if ($level > 1) {
-					$bracketInnerQueue[] = $innerToken;
+					$bracketInnerTokenList[] = $innerToken;
 				}
 
 				$level--;
 			} else {
-				$bracketInnerQueue[] = $innerToken;
+				$bracketInnerTokenList[] = $innerToken;
 			}
 		} while ($level > 0);
 
 		// @todo spravneho odsazeni vnitrniho obsahu
 		if ($this->setting['before-content'] !== NULL) {
-			$lines = $this->splitTokensToLines($bracketInnerQueue);
+			$lines = $this->splitTokensToLines($bracketInnerTokenList);
 		}
 
-		foreach ($formatter->processTokenQueue($bracketInnerQueue) as $processedToken) {
-			$outputQueue[] = $processedToken;
+		foreach ($formatter->processTokenList($bracketInnerTokenList) as $processedToken) {
+			$outputTokenList[] = $processedToken;
 		}
 
 		switch ($this->setting['before-last-bracket']) {
 			case 'none':
-				if ($outputQueue->top()->isType(T_WHITESPACE)) {
-					$token = $outputQueue->pop();
+				if ($outputTokenList->tail()->isType(T_WHITESPACE)) {
+					$token = $outputTokenList->pop();
 
 					if (strpos($token->getValue(), "\n") !== FALSE) { // @todo toto jeste doresit
-						$outputQueue[] = new Token("\n", T_WHITESPACE);
+						$outputTokenList[] = new Token("\n", T_WHITESPACE);
 					}
 				} else {
-					$outputQueue[] = new Token("\n", T_WHITESPACE);
+					$outputTokenList[] = new Token("\n", T_WHITESPACE);
 				}
 				break;
 			case 'tab':
-				if ($outputQueue->top()->isType(T_WHITESPACE)) {
-					if ($outputQueue->top()->getValue() !== "\n\t") {
-						$token = $outputQueue->pop();
+				if ($outputTokenList->tail()->isType(T_WHITESPACE)) {
+					if ($outputTokenList->tail()->getValue() !== "\n\t") {
+						$token = $outputTokenList->pop();
 						$token->setValue("\n\t");
-						$outputQueue[] = $token;
+						$outputTokenList[] = $token;
 					}
 				} else {
-					$outputQueue[] = new Token("\n\t", T_WHITESPACE);
+					$outputTokenList[] = new Token("\n\t", T_WHITESPACE);
 				}
 				break;
 		}
 
-		$outputQueue[] = $innerToken;
+		$outputTokenList[] = $innerToken;
 	}
 
-	protected function splitTokensToLines(TokenQueue $inputQueue)
+	protected function splitTokensToLines(TokenList $inputTokenList)
 	{
 		$lines = array(0 => array());
-		foreach ($inputQueue as $token) {
+		foreach ($inputTokenList as $token) {
 			if ($token->isType(T_WHITESPACE)) {
 				if (strpos($token->getValue(), "\n")) {
 					$strings = explode("\n", $token->getValue());
