@@ -50,6 +50,10 @@ class Formatter
 			}
 		}
 
+		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+			$processedTokenList->pop();
+		}
+
 		return $processedTokenList;
 	}
 

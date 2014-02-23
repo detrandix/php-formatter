@@ -5,12 +5,12 @@ use PhpFormatter\Token;
 require_once __DIR__ . '/../../bootstrap.php';
 
 
-function createFormatter($settings)
+function createFormatter($settings, $namespace = 'arround-operators')
 {
 	$operatorsTransformation = new PhpFormatter\Transformation\Operators;
 	$formatter  = new PhpFormatter\Formatter;
 	$operatorsTransformation->registerToFormatter($formatter, [
-		'spaces' => ['arround-operators' => $settings]
+		'spaces' => [$namespace => $settings]
 	]);
 	return $formatter;
 }
@@ -124,6 +124,70 @@ DOC;
 $output = <<<DOC
 <?php
 \$test -> test();
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['before-comma' => TRUE], 'other');
+
+$input = <<<DOC
+<?php
+\$a = [1,2];
+DOC;
+
+$output = <<<DOC
+<?php
+\$a=[1 ,2];
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['after-comma' => TRUE], 'other');
+
+$input = <<<DOC
+<?php
+\$a = [1,2];
+DOC;
+
+$output = <<<DOC
+<?php
+\$a=[1, 2];
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['before-semicolon' => TRUE], 'other');
+
+$input = <<<DOC
+<?php
+test();
+DOC;
+
+$output = <<<DOC
+<?php
+test() ;
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['after-semicolon' => TRUE], 'other');
+
+$input = <<<DOC
+<?php
+test();test();
+DOC;
+
+$output = <<<DOC
+<?php
+test(); test();
 DOC;
 
 Assert::same($output, $formatter->format($input));
