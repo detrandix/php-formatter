@@ -6,7 +6,7 @@ use PhpFormatter\Token;
 use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
-class Operators
+class Spaces
 {
 
 	public function registerToFormatter(Formatter $formatter, $settings)
