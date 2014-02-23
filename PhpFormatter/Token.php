@@ -39,9 +39,33 @@ class Token
 		}
 	}
 
+	public function isInTypes($types)
+	{
+		foreach ($types as $type) {
+			if ($this->isType($type)) {
+				return TRUE;
+			}
+		}
+		return FALSE;
+	}
+
+	public function getType()
+	{
+		return $this->type ? token_name($this->type) : NULL;
+	}
+
 	public function isSingleValue($value)
 	{
 		return $this->type === NULL && $this->value === $value;
+	}
+
+	public function isInSingleValues($values)
+	{
+		if ($this->type !== NULL) {
+			return FALSE;
+		} else {
+			return in_array($this->value, $values);
+		}
 	}
 
 	public function getValue()
