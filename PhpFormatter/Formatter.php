@@ -18,9 +18,9 @@ class Formatter
 		$this->transformations = [];
 	}
 
-	public function addTransformation(Token $token, $callback, $use)
+	public function addTransformation(Token $token, $callback, $use, $params = NULL)
 	{
-		$this->transformations[] = [$token, $callback, $use];
+		$this->transformations[] = [$token, $callback, $use, $params];
 	}
 
 	public function format($code)
@@ -61,7 +61,7 @@ class Formatter
 	{
 		foreach ($transformations as $transformation) {
 			if ($transformation[2] === self::USE_BEFORE) {
-				$transformation[1]($token, $tokenList, $processedTokenList);
+				$transformation[1]($token, $tokenList, $processedTokenList, $transformation[3]);
 			}
 		}
 
@@ -69,7 +69,7 @@ class Formatter
 
 		foreach ($transformations as $transformation) {
 			if ($transformation[2] === self::USE_AFTER) {
-				$transformation[1]($token, $tokenList, $processedTokenList);
+				$transformation[1]($token, $tokenList, $processedTokenList, $transformation[3]);
 			}
 		}
 	}

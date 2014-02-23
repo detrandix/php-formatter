@@ -130,6 +130,102 @@ Assert::same($output, $formatter->format($input));
 
 
 
+$formatter = createFormatter(['if-elseif' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+if(TRUE){}elseif(FALSE){}
+DOC;
+
+$output = <<<DOC
+<?php
+if (TRUE){}elseif (FALSE){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['for-foreach' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+for(;;){}foreach(range(1,2)){}
+DOC;
+
+$output = <<<DOC
+<?php
+for (;;){}foreach (range(1,2)){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['while' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+while(TRUE){}
+DOC;
+
+$output = <<<DOC
+<?php
+while (TRUE){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['catch' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+try{}catch(Exception \$e){}
+DOC;
+
+$output = <<<DOC
+<?php
+try{}catch (Exception\$e){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['switch' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+switch(TRUE){}
+DOC;
+
+$output = <<<DOC
+<?php
+switch (TRUE){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['array-declaration' => TRUE], 'before-parentheses');
+
+$input = <<<DOC
+<?php
+\$a = array('a','b');
+DOC;
+
+$output = <<<DOC
+<?php
+\$a=array ('a','b');
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
 $formatter = createFormatter(['before-comma' => TRUE], 'other');
 
 $input = <<<DOC

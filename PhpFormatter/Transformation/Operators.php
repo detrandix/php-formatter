@@ -71,6 +71,38 @@ class Operators
 			}
 		}
 
+		if (isset($settings['spaces']['before-parentheses'])) {
+			$beforeParenthesesSettings = $settings['spaces']['before-parentheses'];
+
+			if (isset($beforeParenthesesSettings['if-elseif']) && $beforeParenthesesSettings['if-elseif']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [T_IF, T_ELSEIF]);
+			}
+
+			if (isset($beforeParenthesesSettings['for-foreach']) && $beforeParenthesesSettings['for-foreach']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [T_FOR, T_FOREACH]);
+			}
+
+			if (isset($beforeParenthesesSettings['catch']) && $beforeParenthesesSettings['catch']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, T_CATCH);
+			}
+
+			if (isset($beforeParenthesesSettings['while']) && $beforeParenthesesSettings['while']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, T_WHILE);
+			}
+
+			if (isset($beforeParenthesesSettings['catch']) && $beforeParenthesesSettings['catch']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, T_CATCH);
+			}
+
+			if (isset($beforeParenthesesSettings['switch']) && $beforeParenthesesSettings['switch']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, T_SWITCH);
+			}
+
+			if (isset($beforeParenthesesSettings['array-declaration']) && $beforeParenthesesSettings['array-declaration']) {
+				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, T_ARRAY);
+			}
+		}
+
 		if (isset($settings['spaces']['other'])) {
 			$otherSettings = $settings['spaces']['other'];
 
@@ -98,11 +130,18 @@ class Operators
 		$formatter->addTransformation($token, [$this, 'addWhitespace'], Formatter::USE_AFTER);
 	}
 
-	public function addWhitespace($token, $tokenList, $processedTokenList)
+	public function addWhitespace($token, $tokenList, $processedTokenList, $params)
 	{
-		if ($token->isSingleValue(':') && $processedTokenList->tail()->isType(T_WHITESPACE)) {
+		$addWhitespace = TRUE;
+
+		if ($params !== NULL) {
+			$addWhitespace = $processedTokenList->tail()->isInTypes((array) $params);
+		} elseif ($token->isSingleValue(':') && $processedTokenList->tail()->isType(T_WHITESPACE)) {
 			$processedTokenList->pop();
-		} else {
+			$addWhitespace = FALSE;
+		}
+
+		if ($addWhitespace) {
 			$processedTokenList[] = new Token(' ', T_WHITESPACE);
 		}
 	}
