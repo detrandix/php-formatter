@@ -78,6 +78,11 @@ class Token
 		$this->value = $value;
 	}
 
+	public function isSame(Token $token)
+	{
+		return $this->getType() === $token->getType() && $this->getValue() == $token->getValue();
+	}
+
 	public function __toString()
 	{
 		return $this->value;

@@ -9,8 +9,8 @@ use PhpFormatter\Formatter;
 interface ITransformation
 {
 
-	public function canApply(Token $token, TokenList $tokenList);
+	//public function canApply(Token $token, TokenList $tokenList);
 
-	public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter);
+	//public function transform(Token $token, TokenList $inputTokenList, TokenList $outputTokenList, Formatter $formatter);
 
 }

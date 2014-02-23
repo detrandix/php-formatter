@@ -5,31 +5,22 @@ namespace PhpFormatter;
 class Formatter
 {
 
+	const USE_BEFORE = 'before';
+	const USE_AFTER = 'after';
+
 	protected $settings;
 
 	protected $transformations;
 
-	protected $lastTransformation = NULL;
-
-	protected static $transformationClassMap = [
-		'constants' => 'PhpFormatter\\Transformation\\Constants',
-		'strings/join' => 'PhpFormatter\\Transformation\\Strings\\Join',
-		'strings/semicolon' => 'PhpFormatter\\Transformation\\Strings\\Semicolon',
-		'brackets' => 'PhpFormatter\\Transformation\\Brackets',
-		'curly-brackets' => 'PhpFormatter\\Transformation\\CurlyBrackets'
-	];
-
 	public function __construct($settings = [])
 	{
 		$this->settings = $settings;
-
 		$this->transformations = [];
+	}
 
-		foreach ($settings as $key => $value) {
-			if (isset(self::$transformationClassMap[$key])) {
-				$this->transformations[] = new self::$transformationClassMap[$key]($value);
-			}
-		}
+	public function addTransformation(Token $token, $callback, $use)
+	{
+		$this->transformations[] = [$token, $callback, $use];
 	}
 
 	public function format($code)
@@ -46,31 +37,40 @@ class Formatter
 		while (!$tokenList->isEmpty()) {
 			$token = $tokenList->shift();
 
-			$transformed = FALSE;
-			foreach ($this->transformations as $transformation) {
-				if ($transformation->canApply($token, $tokenList)) {
-					$transformation->transform($token, $tokenList, $processedTokenList, $this);
-					$this->lastTransformation = $transformation;
-					$transformed = TRUE;
-					break;
-				}
-			}
+			if (!$token->isType(T_WHITESPACE)) {
+				$transformations = [];
 
-			if (!$transformed) {
-				$processedTokenList[] = $token;
-				$this->lastTransformation = NULL;
+				foreach ($this->transformations as $transformation) {
+					if ($token->isSame($transformation[0])) {
+						$transformations[] = $transformation;
+					}
+				}
+
+				$this->processToken($token, $tokenList, $processedTokenList, $transformations);
 			}
 		}
 
 		return $processedTokenList;
 	}
 
-	public function getLastTransformation()
+	protected function processToken($token, $tokenList, $processedTokenList, $transformations)
 	{
-		return $this->lastTransformation;
+		foreach ($transformations as $transformation) {
+			if ($transformation[2] === self::USE_BEFORE) {
+				$transformation[1]($token, $tokenList, $processedTokenList);
+			}
+		}
+
+		$processedTokenList[] = $token;
+
+		foreach ($transformations as $transformation) {
+			if ($transformation[2] === self::USE_AFTER) {
+				$transformation[1]($token, $tokenList, $processedTokenList);
+			}
+		}
 	}
 
-	protected function render(TokenList $tokenList)
+	public function render(TokenList $tokenList)
 	{
 		$string = '';
 		foreach ($tokenList as $token)

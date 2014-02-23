@@ -44,3 +44,11 @@ Assert::same($token->getValue(), 'string');
 $token = Token::createFromZendToken('.');
 
 Assert::true($token->isSingleValue('.'));
+
+
+
+$token = new Token('string', T_STRING);
+$token2 = new Token('string');
+
+Assert::true($token->isSame($token));
+Assert::false($token->isSame($token2));
