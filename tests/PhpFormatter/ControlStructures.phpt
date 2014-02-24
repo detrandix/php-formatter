@@ -35,3 +35,26 @@ Assert::false($controlStructures->isActualType(T_IF));
 $controlStructures->addRightBrace();
 
 Assert::true($controlStructures->isActualType(T_IF));
+
+
+
+$controlStructures = new ControlStructures;
+
+$controlStructures->addControl(new Token('if', T_IF));
+$controlStructures->addSemicolon();
+
+Assert::true($controlStructures->isLastType(T_IF));
+
+$controlStructures->addControl(new Token('if', T_IF));
+$controlStructures->addLeftBrace();
+$controlStructures->addSemicolon();
+
+Assert::true($controlStructures->isActualType(T_IF));
+
+$controlStructures->addControl(new Token('for', T_FOR));
+$controlStructures->addSemicolon();
+
+Assert::true($controlStructures->isActualType(T_FOR));
+
+
+

@@ -32,11 +32,11 @@ class ControlStructures
 
 		$formatter->addTransformation(new Token('{'), [$this, 'addLeftBrace'], Formatter::USE_BEFORE);
 		$formatter->addTransformation(new Token('}'), [$this, 'addRightBrace'], Formatter::USE_BEFORE);
+		$formatter->addTransformation(new Token(';'), [$this, 'addSemicolon'], Formatter::USE_BEFORE);
 	}
 
 	public function addControl(Token $token)
 	{
-		// pokud je predchozi s FALSE, smazat
 		$this->controls[] = [$token, FALSE];
 	}
 
@@ -57,6 +57,16 @@ class ControlStructures
 	public function addRightBrace()
 	{
 		$this->lastPopped = array_pop($this->controls);
+	}
+
+	public function addSemicolon()
+	{
+		if (count($this->controls) && !$this->isActualType(T_FOR)) {
+			$lastIndex = count($this->controls) - 1;
+			if ($this->controls[$lastIndex][1] === FALSE) {
+				$this->addRightBrace();
+			}
+		}
 	}
 
 	public function isActualType($type)
