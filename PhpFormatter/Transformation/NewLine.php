@@ -49,6 +49,7 @@ class NewLine
 	{
 		if (!$this->controlStructures->isActualType(T_FOR)) {
 			$processedTokenList[] = new Token("\n", T_WHITESPACE);
+			$this->indent->addIndent($processedTokenList);
 		}
 	}
 

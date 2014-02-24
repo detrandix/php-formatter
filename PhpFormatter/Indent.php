@@ -47,10 +47,17 @@ class Indent
 		$this->indent = 0;
 	}
 
-	public function addIndent(TokenList $tokenList)
+	public function registerToFormatter(Formatter $formatter)
 	{
-		if ($this->indent > 0 && $this->count > 0 && $this->type !== self::TYPE_NONE) {
-			$tokenList->push(new Token(str_repeat($this->type, $this->count), T_WHITESPACE));
+		$formatter->addTransformation(new Token('{'), [$this, 'incIndent'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('}'), [$this, 'decIndent'], Formatter::USE_BEFORE);
+	}
+
+	public function addIndent(TokenList $tokenList, $indentAdd = 0)
+	{
+		$indent = $this->indent + $indentAdd;
+		if ($indent > 0 && $this->count > 0 && $this->type !== self::TYPE_NONE) {
+			$tokenList->push(new Token(str_repeat(str_repeat($this->type, $this->count), $indent), T_WHITESPACE));
 		}
 	}
 
@@ -61,7 +68,7 @@ class Indent
 
 	public function decIndent()
 	{
-		$this->indent = max(0, $this->indent--);
+		$this->indent = max(0, $this->indent - 1);
 	}
 
 }

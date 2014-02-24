@@ -25,6 +25,10 @@ class Spaces
 	{
 		$formatter->addTransformation(new Token('class', T_CLASS), [$this, 'addWhitespace'], Formatter::USE_AFTER);
 		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('public', T_PUBLIC), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('protected', T_PROTECTED), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('private', T_PRIVATE), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('final', T_FINAL), [$this, 'addWhitespace'], Formatter::USE_AFTER);
 
 		if (isset($settings['spaces']['before-keywords'])) {
 			$beforeKeywordsSettings = $settings['spaces']['before-keywords'];

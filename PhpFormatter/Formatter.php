@@ -23,12 +23,16 @@ class Formatter
 		$controlStructures->registerToFormatter($formatter);
 
 		$indent = new Indent($settings);
+		$indent->registerToFormatter($formatter);
 
 		$spaces = new Transformation\Spaces($controlStructures, $indent);
 		$spaces->registerToFormatter($formatter, $settings);
 
 		$newLine = new Transformation\NewLine($controlStructures, $indent);
 		$newLine->registerToFormatter($formatter, $settings);
+
+		$braces = new Transformation\Braces($controlStructures, $indent);
+		$braces->registerToFormatter($formatter, $settings);
 
 		return $formatter;
 	}

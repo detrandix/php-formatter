@@ -7,12 +7,12 @@ $formatter = PhpFormatter\Formatter::createFromSettings();
 
 $input = <<<DOC
 <?php
-class Test{}
+class Test{public test;private test;final protected test;}
 DOC;
 
 $output = <<<DOC
 <?php
-class Test{}
+class Test{public test;private test;final protected test;}
 DOC;
 
 Assert::same($output, $formatter->format($input));

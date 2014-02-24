@@ -31,8 +31,8 @@ class ControlStructures
 		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addControl'], Formatter::USE_BEFORE);
 
 		$formatter->addTransformation(new Token('{'), [$this, 'addLeftBrace'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('}'), [$this, 'addRightBrace'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token(';'), [$this, 'addSemicolon'], Formatter::USE_BEFORE);
+		$formatter->addTransformation(new Token('}'), [$this, 'addRightBrace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token(';'), [$this, 'addSemicolon'], Formatter::USE_AFTER);
 	}
 
 	public function addControl(Token $token)
