@@ -33,6 +33,18 @@ class Braces
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_CLASS, $bracesSettings['class-declaration']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_CLASS, $bracesSettings['class-declaration']]);
 			}
+
+			if (isset($bracesSettings['if-elseif-else']) && in_array($bracesSettings['if-elseif-else'], self::$POSSIBLE_OPTIONS)) {
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_IF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_IF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_IF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSE, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
+			}
 		}
 	}
 
@@ -49,7 +61,6 @@ class Braces
 					$this->indent->addIndent($processedTokenList, 1);
 					break;
 				case 'same-line':
-					$processedTokenList[] = new Token(' ', T_WHITESPACE);
 					break;
 			}
 		}

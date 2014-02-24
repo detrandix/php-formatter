@@ -70,7 +70,7 @@ DOC;
 
 $output = <<<DOC
 <?php
-class Test {
+class Test{
 	public function test(){};
 	public function test2(){};
 }
