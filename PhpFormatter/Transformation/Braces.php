@@ -65,6 +65,16 @@ class Braces
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_SWITCH, $bracesSettings['switch']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_SWITCH, $bracesSettings['switch']]);
 			}
+
+			if (isset($bracesSettings['try-catch']) && in_array($bracesSettings['try-catch'], self::$POSSIBLE_OPTIONS)) {
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_TRY, $bracesSettings['try-catch']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_TRY, $bracesSettings['try-catch']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_TRY, $bracesSettings['try-catch']]);
+
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_CATCH, $bracesSettings['try-catch']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
+			}
 		}
 	}
 
