@@ -2,12 +2,20 @@
 
 namespace PhpFormatter\Transformation;
 
+use PhpFormatter\Indent;
 use PhpFormatter\Token;
 use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
 
 class Spaces
 {
+
+	public $indent;
+
+	public function __construct(Indent $indent)
+	{
+		$this->indent = $indent;
+	}
 
 	public function registerToFormatter(Formatter $formatter, $settings)
 	{

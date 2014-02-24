@@ -8,14 +8,25 @@ class Formatter
 	const USE_BEFORE = 'before';
 	const USE_AFTER = 'after';
 
-	protected $settings;
-
 	protected $transformations;
 
-	public function __construct($settings = [])
+	public function __construct()
 	{
-		$this->settings = $settings;
 		$this->transformations = [];
+	}
+
+	public static function createFromSettings($settings)
+	{
+		$formatter = new self;
+
+		$indent = new Indent($settings);
+
+		if (isset($settings['spaces'])) {
+			$spaces = new Transformation\Spaces($indent);
+			$spaces->registerToFormatter($formatter, $settings);
+		}
+
+		return $formatter;
 	}
 
 	public function addTransformation(Token $token, $callback, $use, $params = NULL)

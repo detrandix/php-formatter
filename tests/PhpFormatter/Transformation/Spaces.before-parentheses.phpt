@@ -7,9 +7,7 @@ require_once __DIR__ . '/../../bootstrap.php';
 
 function createFormatter($settings)
 {
-	$spacesTransformation = new PhpFormatter\Transformation\Spaces;
-	$formatter  = new PhpFormatter\Formatter;
-	$spacesTransformation->registerToFormatter($formatter, [
+	$formatter = PhpFormatter\Formatter::createFromSettings([
 		'spaces' => ['before-parentheses' => $settings]
 	]);
 	return $formatter;
