@@ -104,7 +104,7 @@ DOC;
 
 $output = <<<DOC
 <?php
-for(;;) {}foreach(\$aas\$b) {};
+for(;;) {}foreach(\$a as \$b) {};
 DOC;
 
 Assert::same($output, $formatter->format($input));

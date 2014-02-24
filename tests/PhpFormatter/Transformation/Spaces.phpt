@@ -30,3 +30,31 @@ function test(){}
 DOC;
 
 Assert::same($output, $formatter->format($input));
+
+
+
+$input = <<<DOC
+<?php
+print"test";echo"test";
+DOC;
+
+$output = <<<DOC
+<?php
+print "test";echo "test";
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
+
+
+$input = <<<DOC
+<?php
+foreach(\$values as \$value){}
+DOC;
+
+$output = <<<DOC
+<?php
+foreach(\$values as \$value){}
+DOC;
+
+Assert::same($output, $formatter->format($input));
