@@ -24,6 +24,7 @@ class Spaces
 	public function registerToFormatter(Formatter $formatter, $settings)
 	{
 		$formatter->addTransformation(new Token('class', T_CLASS), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addWhitespace'], Formatter::USE_AFTER);
 
 		if (isset($settings['spaces']['before-keywords'])) {
 			$beforeKeywordsSettings = $settings['spaces']['before-keywords'];
@@ -104,6 +105,44 @@ class Spaces
 
 			if (isset($beforeLeftBracesSettings['class-declaration']) && $beforeLeftBracesSettings['class-declaration']) {
 				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_CLASS);
+			}
+
+			if (isset($beforeLeftBracesSettings['method-declaration']) && $beforeLeftBracesSettings['method-declaration']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FUNCTION);
+			}
+
+			if (isset($beforeLeftBracesSettings['if-elseif']) && $beforeLeftBracesSettings['if-elseif']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_IF);
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_ELSEIF);
+			}
+
+			if (isset($beforeLeftBracesSettings['else']) && $beforeLeftBracesSettings['else']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_ELSE);
+			}
+
+			if (isset($beforeLeftBracesSettings['while']) && $beforeLeftBracesSettings['while']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_WHILE);
+			}
+
+			if (isset($beforeLeftBracesSettings['for-foreach']) && $beforeLeftBracesSettings['for-foreach']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FOR);
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FOREACH);
+			}
+
+			if (isset($beforeLeftBracesSettings['do']) && $beforeLeftBracesSettings['do']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_DO);
+			}
+
+			if (isset($beforeLeftBracesSettings['switch']) && $beforeLeftBracesSettings['switch']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_SWITCH);
+			}
+
+			if (isset($beforeLeftBracesSettings['try']) && $beforeLeftBracesSettings['try']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_TRY);
+			}
+
+			if (isset($beforeLeftBracesSettings['catch']) && $beforeLeftBracesSettings['catch']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_CATCH);
 			}
 		}
 

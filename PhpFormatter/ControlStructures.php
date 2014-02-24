@@ -25,6 +25,7 @@ class ControlStructures
 		$formatter->addTransformation(new Token('switch', T_SWITCH), [$this, 'addControl'], Formatter::USE_BEFORE);
 		$formatter->addTransformation(new Token('try', T_TRY), [$this, 'addControl'], Formatter::USE_BEFORE);
 		$formatter->addTransformation(new Token('catch', T_CATCH), [$this, 'addControl'], Formatter::USE_BEFORE);
+		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addControl'], Formatter::USE_BEFORE);
 
 		$formatter->addTransformation(new Token('{'), [$this, 'addLeftBrace'], Formatter::USE_BEFORE);
 		$formatter->addTransformation(new Token('}'), [$this, 'addRightBrace'], Formatter::USE_BEFORE);
