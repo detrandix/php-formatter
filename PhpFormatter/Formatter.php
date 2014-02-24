@@ -10,21 +10,22 @@ class Formatter
 
 	protected $transformations;
 
-	public function __construct()
+	private function __construct()
 	{
 		$this->transformations = [];
 	}
 
-	public static function createFromSettings($settings)
+	public static function createFromSettings($settings = [])
 	{
 		$formatter = new self;
 
+		$controlStructures = new ControlStructures;
+		$controlStructures->registerToFormatter($formatter);
+
 		$indent = new Indent($settings);
 
-		if (isset($settings['spaces'])) {
-			$spaces = new Transformation\Spaces($indent);
-			$spaces->registerToFormatter($formatter, $settings);
-		}
+		$spaces = new Transformation\Spaces($controlStructures, $indent);
+		$spaces->registerToFormatter($formatter, $settings);
 
 		return $formatter;
 	}

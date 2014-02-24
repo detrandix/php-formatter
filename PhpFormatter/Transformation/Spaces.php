@@ -3,6 +3,7 @@
 namespace PhpFormatter\Transformation;
 
 use PhpFormatter\Indent;
+use PhpFormatter\ControlStructures;
 use PhpFormatter\Token;
 use PhpFormatter\TokenList;
 use PhpFormatter\Formatter;
@@ -10,17 +11,19 @@ use PhpFormatter\Formatter;
 class Spaces
 {
 
-	public $indent;
+	protected $controlStructures;
 
-	public function __construct(Indent $indent)
+	protected $indent;
+
+	public function __construct(ControlStructures $controlStructures, Indent $indent)
 	{
+		$this->controlStructures = $controlStructures;
 		$this->indent = $indent;
 	}
 
 	public function registerToFormatter(Formatter $formatter, $settings)
 	{
-		if (!isset($settings['spaces']))
-			return FALSE;
+		$formatter->addTransformation(new Token('class', T_CLASS), [$this, 'addWhitespace'], Formatter::USE_AFTER);
 
 		if (isset($settings['spaces']['before-keywords'])) {
 			$beforeKeywordsSettings = $settings['spaces']['before-keywords'];
@@ -93,6 +96,14 @@ class Spaces
 
 			if (isset($operatorSettings['object-operator']) && $operatorSettings['object-operator']) {
 				$this->register($formatter, new Token('->', T_OBJECT_OPERATOR));
+			}
+		}
+
+		if (isset($settings['spaces']['before-left-braces'])) {
+			$beforeLeftBracesSettings = $settings['spaces']['before-left-braces'];
+
+			if (isset($beforeLeftBracesSettings['class-declaration']) && $beforeLeftBracesSettings['class-declaration']) {
+				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_CLASS);
 			}
 		}
 
@@ -182,6 +193,13 @@ class Spaces
 		}
 
 		if ($addWhitespace) {
+			$processedTokenList[] = new Token(' ', T_WHITESPACE);
+		}
+	}
+
+	public function addWhitespaceWithCondition($token, $tokenList, $processedTokenList, $params)
+	{
+		if ($this->controlStructures->isActualType($params)) {
 			$processedTokenList[] = new Token(' ', T_WHITESPACE);
 		}
 	}
