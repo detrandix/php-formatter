@@ -59,6 +59,12 @@ class Braces
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_FOREACH, $bracesSettings['for-foreach']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_FOREACH, $bracesSettings['for-foreach']]);
 			}
+
+			if (isset($bracesSettings['switch']) && in_array($bracesSettings['switch'], self::$POSSIBLE_OPTIONS)) {
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_SWITCH, $bracesSettings['switch']]);
+				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_SWITCH, $bracesSettings['switch']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_SWITCH, $bracesSettings['switch']]);
+			}
 		}
 	}
 
