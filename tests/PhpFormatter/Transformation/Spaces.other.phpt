@@ -78,3 +78,19 @@ test(); test();
 DOC;
 
 Assert::same($output, $formatter->format($input));
+
+
+
+$formatter = createFormatter(['after-typecast' => TRUE]);
+
+$input = <<<DOC
+<?php
+(array)TRUE;(int)TRUE;(string)TRUE;(float)TRUE;(object)TRUE;
+DOC;
+
+$output = <<<DOC
+<?php
+(array) TRUE;(int) TRUE;(string) TRUE;(float) TRUE;(object) TRUE;
+DOC;
+
+Assert::same($output, $formatter->format($input));
