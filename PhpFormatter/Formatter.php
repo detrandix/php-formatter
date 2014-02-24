@@ -27,6 +27,9 @@ class Formatter
 		$spaces = new Transformation\Spaces($controlStructures, $indent);
 		$spaces->registerToFormatter($formatter, $settings);
 
+		$newLine = new Transformation\NewLine($controlStructures, $indent);
+		$newLine->registerToFormatter($formatter, $settings);
+
 		return $formatter;
 	}
 

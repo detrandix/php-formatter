@@ -7,9 +7,12 @@ class ControlStructures
 
 	protected $controls;
 
+	protected $lastPopped;
+
 	public function __construct()
 	{
 		$this->controls = [];
+		$this->lastPopped = NULL;
 	}
 
 	public function registerToFormatter(Formatter $formatter)
@@ -53,7 +56,7 @@ class ControlStructures
 
 	public function addRightBrace()
 	{
-		array_pop($this->controls);
+		$this->lastPopped = array_pop($this->controls);
 	}
 
 	public function isActualType($type)
@@ -67,6 +70,15 @@ class ControlStructures
 			return FALSE;
 
 		return $this->controls[$lastIndex][0]->isType($type);
+	}
+
+	public function isLastType($type)
+	{
+		if ($this->lastPopped === NULL || $this->lastPopped[0] === NULL) {
+			return FALSE;
+		}
+
+		return $this->lastPopped[0]->isType($type);
 	}
 
 }
