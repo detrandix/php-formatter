@@ -24,7 +24,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-\$a ++ ;\$b -- ;
+\$a ++ ;
+\$b -- ;
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -105,7 +106,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-\$a = 'b';\$b .= 'c';
+\$a = 'b';
+\$b .= 'c';
 DOC;
 
 Assert::same($output, $formatter->format($input));

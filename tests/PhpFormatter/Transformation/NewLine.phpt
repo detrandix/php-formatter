@@ -15,7 +15,7 @@ function createFormatter($settings)
 
 
 
-$formatter = createFormatter(['semicolon' => TRUE]);
+$formatter = createFormatter([]);
 
 $input = <<<DOC
 <?php

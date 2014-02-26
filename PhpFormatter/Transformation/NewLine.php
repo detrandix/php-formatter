@@ -23,12 +23,10 @@ class NewLine
 
 	public function registerToFormatter(Formatter $formatter, $settings)
 	{
+		$formatter->addTransformation(new Token(';'), [$this, 'addNewLineAfterSemicolon'], Formatter::USE_AFTER);
+
 		if (isset($settings['new-line'])) {
 			$newLineSettings = $settings['new-line'];
-
-			if (isset($newLineSettings['semicolon']) && $newLineSettings['semicolon']) {
-				$formatter->addTransformation(new Token(';'), [$this, 'addNewLineAfterSemicolon'], Formatter::USE_AFTER);
-			}
 
 			if (isset($newLineSettings['else-elseif']) && $newLineSettings['else-elseif']) {
 				$formatter->addTransformation(new Token('else', T_ELSE), [$this, 'addNewLineBefore'], Formatter::USE_BEFORE);
@@ -48,6 +46,10 @@ class NewLine
 	public function addNewLineAfterSemicolon($token, $tokenList, $processedTokenList, $params)
 	{
 		if (!$this->controlStructures->isActualType(T_FOR)) {
+			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+				$processedTokenList->pop();
+			}
+
 			$processedTokenList[] = new Token("\n", T_WHITESPACE);
 			$this->indent->addIndent($processedTokenList);
 		}

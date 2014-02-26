@@ -72,7 +72,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-test(); test();
+test();
+test();
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -88,7 +89,11 @@ DOC;
 
 $output = <<<DOC
 <?php
-(array) TRUE;(int) TRUE;(string) TRUE;(float) TRUE;(object) TRUE;
+(array) TRUE;
+(int) TRUE;
+(string) TRUE;
+(float) TRUE;
+(object) TRUE;
 DOC;
 
 Assert::same($output, $formatter->format($input));

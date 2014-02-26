@@ -13,7 +13,9 @@ DOC;
 $output = <<<DOC
 <?php
 class Test{
-public test;private test;final protected test;
+public test;
+private test;
+final protected test;
 }
 DOC;
 
@@ -43,7 +45,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-print "test";echo "test";
+print "test";
+echo "test";
 DOC;
 
 Assert::same($output, $formatter->format($input));
