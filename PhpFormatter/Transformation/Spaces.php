@@ -4,6 +4,9 @@
  * This file is part of the PhpFormatter tool
  *
  * Copyright (c) 2014 Tomáš Lang
+ *
+ * For the full copyright and license information, please view the file
+ * license-mit.txt that was distributed with this source code.
  */
 
 namespace PhpFormatter\Transformation;

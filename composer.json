@@ -1,5 +1,6 @@
 {
 	"name": "detrandix/php-formatter",
+	"license": "MIT",
 	"authors": [
 		{
 			"name": "Tomáš Lang"
