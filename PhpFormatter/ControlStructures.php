@@ -15,24 +15,17 @@ class ControlStructures
 		$this->lastPopped = NULL;
 	}
 
-	public function registerToFormatter(Formatter $formatter)
+	public function register(TransformationRules $rules)
 	{
-		$formatter->addTransformation(new Token('class', T_CLASS), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('if', T_IF), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('elseif', T_ELSEIF), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('else', T_ELSE), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('for', T_FOR), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('foreach', T_FOREACH), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('while', T_WHILE), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('do', T_DO), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('switch', T_SWITCH), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('try', T_TRY), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('catch', T_CATCH), [$this, 'addControl'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addControl'], Formatter::USE_BEFORE);
+		$controls = [
+			T_CLASS, T_IF, T_ELSEIF, T_ELSE, T_FOR, T_FOREACH,
+			T_WHILE, T_DO, T_SWITCH, T_TRY, T_CATCH, T_FUNCTION
+		];
+		$rules->addRuleByType($controls, TransformationRules::USE_BEFORE, [$this, 'addControl']);
 
-		$formatter->addTransformation(new Token('{'), [$this, 'addLeftBrace'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('}'), [$this, 'addRightBrace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token(';'), [$this, 'addSemicolon'], Formatter::USE_AFTER);
+		$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addLeftBrace']);
+		$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'addRightBrace']);
+		$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addSemicolon']);
 	}
 
 	public function addControl(Token $token)

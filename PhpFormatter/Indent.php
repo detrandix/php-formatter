@@ -47,10 +47,10 @@ class Indent
 		$this->indent = 0;
 	}
 
-	public function registerToFormatter(Formatter $formatter)
+	public function register(TransformationRules $rules)
 	{
-		$formatter->addTransformation(new Token('{'), [$this, 'incIndent'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('}'), [$this, 'decIndent'], Formatter::USE_BEFORE);
+		$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'incIndent']);
+		$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'decIndent']);
 	}
 
 	public function addIndent(TokenList $tokenList, $indentAdd = 0)

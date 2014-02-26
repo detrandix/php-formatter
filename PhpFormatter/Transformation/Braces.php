@@ -6,7 +6,7 @@ use PhpFormatter\Indent;
 use PhpFormatter\ControlStructures;
 use PhpFormatter\Token;
 use PhpFormatter\TokenList;
-use PhpFormatter\Formatter;
+use PhpFormatter\TransformationRules;
 
 class Braces
 {
@@ -23,73 +23,73 @@ class Braces
 		$this->indent = $indent;
 	}
 
-	public function registerToFormatter(Formatter $formatter, $settings)
+	public function register(TransformationRules $rules, $settings)
 	{
-		$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, NULL);
-		$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER);
+		$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter']);
+		$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], NULL);
+		$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'processRightAfter']);
 
 		if (isset($settings['braces'])) {
 			$bracesSettings = $settings['braces'];
 
-			if (isset($bracesSettings['class-declaration']) && in_array($bracesSettings['class-declaration'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_CLASS, $bracesSettings['class-declaration']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_CLASS, $bracesSettings['class-declaration']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_CLASS, $bracesSettings['class-declaration']]);
+			if (isset($bracesSettings['class-declaration']) && in_array($setting = $bracesSettings['class-declaration'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_CLASS, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_CLASS, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_CLASS, $setting]);
 			}
 
-			if (isset($bracesSettings['if-elseif-else']) && in_array($bracesSettings['if-elseif-else'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_IF, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_IF, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_IF, $bracesSettings['if-elseif-else']]);
+			if (isset($bracesSettings['if-elseif-else']) && in_array($setting = $bracesSettings['if-elseif-else'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_IF, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_IF, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_IF, $setting]);
 
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_ELSEIF, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_ELSEIF, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_ELSEIF, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'processRightAfter'], [T_ELSEIF, $setting]);
 
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSE, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_ELSE, $bracesSettings['if-elseif-else']]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_ELSE, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_ELSE, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_ELSE, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'processRightAfter'], [T_ELSE, $setting]);
 			}
 
-			if (isset($bracesSettings['for-foreach']) && in_array($bracesSettings['for-foreach'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_FOR, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_FOR, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_FOR, $bracesSettings['for-foreach']]);
+			if (isset($bracesSettings['for-foreach']) && in_array($setting = $bracesSettings['for-foreach'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_FOR, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_FOR, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_FOR, $setting]);
 
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_FOREACH, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_FOREACH, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_FOREACH, $bracesSettings['for-foreach']]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_FOREACH, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_FOREACH, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_FOREACH, $setting]);
 			}
 
-			if (isset($bracesSettings['while-do']) && in_array($bracesSettings['while-do'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_WHILE, $bracesSettings['while-do']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_WHILE, $bracesSettings['while-do']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_WHILE, $bracesSettings['while-do']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_WHILE, $bracesSettings['while-do']]);
+			if (isset($bracesSettings['while-do']) && in_array($setting = $bracesSettings['while-do'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_WHILE, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_WHILE, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_WHILE, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'processRightAfter'], [T_WHILE, $setting]);
 
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_DO, $bracesSettings['while-do']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_DO, $bracesSettings['while-do']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_DO, $bracesSettings['while-do']]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_DO, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_DO, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_DO, $setting]);
 			}
 
-			if (isset($bracesSettings['switch']) && in_array($bracesSettings['switch'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_SWITCH, $bracesSettings['switch']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_SWITCH, $bracesSettings['switch']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_SWITCH, $bracesSettings['switch']]);
+			if (isset($bracesSettings['switch']) && in_array($setting = $bracesSettings['switch'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_SWITCH, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_SWITCH, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_SWITCH, $setting]);
 			}
 
-			if (isset($bracesSettings['try-catch']) && in_array($bracesSettings['try-catch'], self::$POSSIBLE_OPTIONS)) {
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_TRY, $bracesSettings['try-catch']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_TRY, $bracesSettings['try-catch']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_TRY, $bracesSettings['try-catch']]);
+			if (isset($bracesSettings['try-catch']) && in_array($setting = $bracesSettings['try-catch'], self::$POSSIBLE_OPTIONS)) {
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_TRY, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_TRY, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_TRY, $setting]);
 
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
-				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_CATCH, $bracesSettings['try-catch']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_CATCH, $bracesSettings['try-catch']]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [T_CATCH, $setting]);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter'], [T_CATCH, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'processRightBefore'], [T_CATCH, $setting]);
+				$rules->addRuleBySingleValue('}', TransformationRules::USE_AFTER, [$this, 'processRightAfter'], [T_CATCH, $setting]);
 			}
 		}
 	}

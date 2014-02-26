@@ -4,15 +4,11 @@ namespace PhpFormatter;
 
 class Formatter
 {
-
-	const USE_BEFORE = 'before';
-	const USE_AFTER = 'after';
-
-	protected $transformations;
+	protected $transformationRules;
 
 	private function __construct()
 	{
-		$this->transformations = [];
+		$this->transformationRules = new TransformationRules;
 	}
 
 	public static function createFromSettings($settings = [])
@@ -20,26 +16,26 @@ class Formatter
 		$formatter = new self;
 
 		$controlStructures = new ControlStructures;
-		$controlStructures->registerToFormatter($formatter);
+		$controlStructures->register($formatter->getTransformationRules());
 
 		$indent = new Indent($settings);
-		$indent->registerToFormatter($formatter);
+		$indent->register($formatter->getTransformationRules());
 
 		$spaces = new Transformation\Spaces($controlStructures, $indent);
-		$spaces->registerToFormatter($formatter, $settings);
+		$spaces->register($formatter->getTransformationRules(), $settings);
 
 		$newLine = new Transformation\NewLine($controlStructures, $indent);
-		$newLine->registerToFormatter($formatter, $settings);
+		$newLine->register($formatter->getTransformationRules(), $settings);
 
 		$braces = new Transformation\Braces($controlStructures, $indent);
-		$braces->registerToFormatter($formatter, $settings);
+		$braces->register($formatter->getTransformationRules(), $settings);
 
 		return $formatter;
 	}
 
-	public function addTransformation(Token $token, $callback, $use, $params = NULL)
+	public function getTransformationRules()
 	{
-		$this->transformations[] = [$token, $callback, $use, $params];
+		return $this->transformationRules;
 	}
 
 	public function format($code)
@@ -57,13 +53,7 @@ class Formatter
 			$token = $tokenList->shift();
 
 			if (!$token->isType(T_WHITESPACE)) {
-				$transformations = [];
-
-				foreach ($this->transformations as $transformation) {
-					if ($token->isSame($transformation[0])) {
-						$transformations[] = $transformation;
-					}
-				}
+				$transformations = $this->transformationRules->getTransformations($token);
 
 				$this->processToken($token, $tokenList, $processedTokenList, $transformations);
 			}
@@ -78,18 +68,14 @@ class Formatter
 
 	protected function processToken($token, $tokenList, $processedTokenList, $transformations)
 	{
-		foreach ($transformations as $transformation) {
-			if ($transformation[2] === self::USE_BEFORE) {
-				$transformation[1]($token, $tokenList, $processedTokenList, $transformation[3]);
-			}
+		foreach ($transformations[transformationRules::USE_BEFORE] as $transformation) {
+			$transformation[0]($token, $tokenList, $processedTokenList, $transformation[1]);
 		}
 
 		$processedTokenList[] = $token;
 
-		foreach ($transformations as $transformation) {
-			if ($transformation[2] === self::USE_AFTER) {
-				$transformation[1]($token, $tokenList, $processedTokenList, $transformation[3]);
-			}
+		foreach ($transformations[transformationRules::USE_AFTER] as $transformation) {
+			$transformation[0]($token, $tokenList, $processedTokenList, $transformation[1]);
 		}
 	}
 

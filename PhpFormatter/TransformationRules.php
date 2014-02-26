@@ -15,17 +15,17 @@ class TransformationRules
 		$this->rules = [];
 	}
 
-	public function addRuleByType($types, $use, $callback)
+	public function addRuleByType($types, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $types as $type) {
-			$this->rules[] = ['type', token_name($type), $use, $callback];
+			$this->rules[] = ['type', token_name($type), $use, $callback, $params];
 		}
 	}
 
-	public function addRuleBySingleValue($values, $use, $callback)
+	public function addRuleBySingleValue($values, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $values as $value) {
-			$this->rules[] = ['value', $value, $use, $callback];
+			$this->rules[] = ['value', $value, $use, $callback, $params];
 		}
 	}
 
@@ -46,11 +46,11 @@ class TransformationRules
 
 			if ($useTransformation) {
 				if ($this->hasFlag($rule[2], self::USE_BEFORE)) {
-					$transformations[self::USE_BEFORE][] = $rule[3];
+					$transformations[self::USE_BEFORE][] = [$rule[3], $rule[4]];
 				}
 
 				if ($this->hasFlag($rule[2], self::USE_AFTER)) {
-					$transformations[self::USE_AFTER][] = $rule[3];
+					$transformations[self::USE_AFTER][] = [$rule[3], $rule[4]];
 				}
 			}
 		}

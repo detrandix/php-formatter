@@ -6,7 +6,7 @@ use PhpFormatter\Indent;
 use PhpFormatter\ControlStructures;
 use PhpFormatter\Token;
 use PhpFormatter\TokenList;
-use PhpFormatter\Formatter;
+use PhpFormatter\TransformationRules;
 
 class NewLine
 {
@@ -21,24 +21,23 @@ class NewLine
 		$this->indent = $indent;
 	}
 
-	public function registerToFormatter(Formatter $formatter, $settings)
+	public function register(TransformationRules $rules, $settings)
 	{
-		$formatter->addTransformation(new Token(';'), [$this, 'addNewLineAfterSemicolon'], Formatter::USE_AFTER);
+		$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addNewLineAfterSemicolon']);
 
 		if (isset($settings['new-line'])) {
 			$newLineSettings = $settings['new-line'];
 
 			if (isset($newLineSettings['else-elseif']) && $newLineSettings['else-elseif']) {
-				$formatter->addTransformation(new Token('else', T_ELSE), [$this, 'addNewLineBefore'], Formatter::USE_BEFORE);
-				$formatter->addTransformation(new Token('elseif', T_ELSEIF), [$this, 'addNewLineBefore'], Formatter::USE_BEFORE);
+				$rules->addRuleByType([T_ELSEIF, T_ELSEIF], TransformationRules::USE_BEFORE, [$this, 'addNewLineBefore']);
 			}
 
 			if (isset($newLineSettings['while']) && $newLineSettings['while']) {
-				$formatter->addTransformation(new Token('while', T_WHILE), [$this, 'addNewLineBeforeWhile'], Formatter::USE_BEFORE);
+				$rules->addRuleByType(T_WHILE, TransformationRules::USE_BEFORE, [$this, 'addNewLineBeforeWhile']);
 			}
 
 			if (isset($newLineSettings['catch']) && $newLineSettings['catch']) {
-				$formatter->addTransformation(new Token('catch', T_CATCH), [$this, 'addNewLineBefore'], Formatter::USE_BEFORE);
+				$rules->addRuleByType(T_CATCH, TransformationRules::USE_BEFORE, [$this, 'addNewLineBeforeWhile']);
 			}
 		}
 	}

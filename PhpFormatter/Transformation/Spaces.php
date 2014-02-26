@@ -6,7 +6,7 @@ use PhpFormatter\Indent;
 use PhpFormatter\ControlStructures;
 use PhpFormatter\Token;
 use PhpFormatter\TokenList;
-use PhpFormatter\Formatter;
+use PhpFormatter\TransformationRules;
 
 class Spaces
 {
@@ -21,33 +21,28 @@ class Spaces
 		$this->indent = $indent;
 	}
 
-	public function registerToFormatter(Formatter $formatter, $settings)
+	public function register(TransformationRules $rules, $settings)
 	{
-		$formatter->addTransformation(new Token('class', T_CLASS), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('function', T_FUNCTION), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('public', T_PUBLIC), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('protected', T_PROTECTED), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('private', T_PRIVATE), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('final', T_FINAL), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('print', T_PRINT), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('echo', T_ECHO), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-		$formatter->addTransformation(new Token('as', T_AS), [$this, 'addWhitespace'], Formatter::USE_BEFORE);
-		$formatter->addTransformation(new Token('as', T_AS), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+		$typesWithSpaceAfter = [
+			T_CLASS, T_FUNCTION, T_PUBLIC, T_PROTECTED, T_PRIVATE,
+			T_FINAL, T_PRINT, T_ECHO
+		];
+		$rules->addRuleByType($typesWithSpaceAfter, TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
+		$rules->addRuleByType(T_AS, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 
 		if (isset($settings['spaces']['before-keywords'])) {
 			$beforeKeywordsSettings = $settings['spaces']['before-keywords'];
 
 			if (isset($beforeKeywordsSettings['while']) && $beforeKeywordsSettings['while']) {
-				$formatter->addTransformation(new Token('while', T_WHILE), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[], ['}']]);
+				$rules->addRuleByType(T_WHILE, TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[], ['}']]);
 			}
 
 			if (isset($beforeKeywordsSettings['else-elseif']) && $beforeKeywordsSettings['else-elseif']) {
-				$formatter->addTransformation(new Token('else', T_ELSE), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[], ['}']]);
-				$formatter->addTransformation(new Token('elseif', T_ELSEIF), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[], ['}']]);
+				$rules->addRuleByType([T_ELSE, T_ELSEIF], TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[], ['}']]);
 			}
 
 			if (isset($beforeKeywordsSettings['catch']) && $beforeKeywordsSettings['catch']) {
-				$formatter->addTransformation(new Token('catch', T_CATCH), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[], ['}']]);
+				$rules->addRuleByType(T_CATCH, TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[], ['}']]);
 			}
 		}
 
@@ -55,56 +50,43 @@ class Spaces
 			$operatorSettings = $settings['spaces']['arround-operators'];
 
 			if (isset($operatorSettings['unary-operators']) && $operatorSettings['unary-operators']) {
-				$this->register($formatter, new Token('++', T_INC));
-				$this->register($formatter, new Token('--', T_DEC));
+				$rules->addRuleByType([T_INC, T_DEC], TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['binary-operators']) && $operatorSettings['binary-operators']) {
-				$this->register($formatter, new Token('&&', T_BOOLEAN_AND));
-				$this->register($formatter, new Token('||', T_BOOLEAN_OR));
-				$this->register($formatter, new Token('==', T_IS_EQUAL));
-				$this->register($formatter, new Token('>=', T_IS_GREATER_OR_EQUAL));
-				$this->register($formatter, new Token('===', T_IS_IDENTICAL));
-				$this->register($formatter, new Token('!=', T_IS_NOT_EQUAL));
-				$this->register($formatter, new Token('<>', T_IS_NOT_EQUAL));
-				$this->register($formatter, new Token('!==', T_IS_NOT_IDENTICAL));
-				$this->register($formatter, new Token('<=', T_IS_SMALLER_OR_EQUAL));
-				$this->register($formatter, new Token('and', T_LOGICAL_AND));
-				$this->register($formatter, new Token('or', T_LOGICAL_OR));
-				$this->register($formatter, new Token('xor', T_LOGICAL_XOR));
-				$this->register($formatter, new Token('<<', T_SL));
-				$this->register($formatter, new Token('>>', T_SR));
+				$binaryOperators = [
+					T_BOOLEAN_AND, T_BOOLEAN_OR, T_IS_EQUAL, T_IS_GREATER_OR_EQUAL,
+					T_IS_IDENTICAL, T_IS_NOT_EQUAL, T_IS_NOT_IDENTICAL,
+					T_IS_SMALLER_OR_EQUAL, T_LOGICAL_AND, T_LOGICAL_OR,
+					T_LOGICAL_XOR, T_SL, T_SR
+				];
+				$rules->addRuleByType($binaryOperators, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['ternary-operators']) && $operatorSettings['ternary-operators']) {
-				$this->register($formatter, new Token('?'));
-				$this->register($formatter, new Token(':'));
+				$rules->addRuleBySingleValue(['?', ':'], TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['string-concation-operator']) && $operatorSettings['string-concation-operator']) {
-				$this->register($formatter, new Token('.'));
+				$rules->addRuleBySingleValue('.', TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['key-value-operator']) && $operatorSettings['key-value-operator']) {
-				$this->register($formatter, new Token('=>', T_DOUBLE_ARROW));
+				$rules->addRuleByType(T_DOUBLE_ARROW, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['assignment-operator']) && $operatorSettings['assignment-operator']) {
-				$this->register($formatter, new Token('='));
-				$this->register($formatter, new Token('&=', T_AND_EQUAL));
-				$this->register($formatter, new Token('.=', T_CONCAT_EQUAL));
-				$this->register($formatter, new Token('/=', T_DIV_EQUAL));
-				$this->register($formatter, new Token('-=', T_MINUS_EQUAL));
-				$this->register($formatter, new Token('%=', T_MOD_EQUAL));
-				$this->register($formatter, new Token('*=', T_MUL_EQUAL));
-				$this->register($formatter, new Token('+=', T_PLUS_EQUAL));
-				$this->register($formatter, new Token('<<=', T_SL_EQUAL));
-				$this->register($formatter, new Token('>>=', T_SR_EQUAL));
-				$this->register($formatter, new Token('^=', T_XOR_EQUAL));
+				$assignmentOperators = [
+					T_AND_EQUAL, T_CONCAT_EQUAL, T_DIV_EQUAL, T_MINUS_EQUAL,
+					T_MOD_EQUAL, T_MUL_EQUAL, T_PLUS_EQUAL, T_SL_EQUAL,
+					T_SR_EQUAL, T_XOR_EQUAL
+				];
+				$rules->addRuleByType($assignmentOperators, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
+				$rules->addRuleBySingleValue('=', TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($operatorSettings['object-operator']) && $operatorSettings['object-operator']) {
-				$this->register($formatter, new Token('->', T_OBJECT_OPERATOR));
+				$rules->addRuleByType(T_OBJECT_OPERATOR, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 		}
 
@@ -112,45 +94,45 @@ class Spaces
 			$beforeLeftBracesSettings = $settings['spaces']['before-left-braces'];
 
 			if (isset($beforeLeftBracesSettings['class-declaration']) && $beforeLeftBracesSettings['class-declaration']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_CLASS);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_CLASS);
 			}
 
 			if (isset($beforeLeftBracesSettings['method-declaration']) && $beforeLeftBracesSettings['method-declaration']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FUNCTION);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_FUNCTION);
 			}
 
 			if (isset($beforeLeftBracesSettings['if-elseif']) && $beforeLeftBracesSettings['if-elseif']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_IF);
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_ELSEIF);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_IF);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_ELSEIF);
 			}
 
 			if (isset($beforeLeftBracesSettings['else']) && $beforeLeftBracesSettings['else']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_ELSE);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_ELSE);
 			}
 
 			if (isset($beforeLeftBracesSettings['while']) && $beforeLeftBracesSettings['while']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_WHILE);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_WHILE);
 			}
 
 			if (isset($beforeLeftBracesSettings['for-foreach']) && $beforeLeftBracesSettings['for-foreach']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FOR);
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_FOREACH);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_FOR);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_FOREACH);
 			}
 
 			if (isset($beforeLeftBracesSettings['do']) && $beforeLeftBracesSettings['do']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_DO);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_DO);
 			}
 
 			if (isset($beforeLeftBracesSettings['switch']) && $beforeLeftBracesSettings['switch']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_SWITCH);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_SWITCH);
 			}
 
 			if (isset($beforeLeftBracesSettings['try']) && $beforeLeftBracesSettings['try']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_TRY);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_TRY);
 			}
 
 			if (isset($beforeLeftBracesSettings['catch']) && $beforeLeftBracesSettings['catch']) {
-				$formatter->addTransformation(new Token('{'), [$this, 'addWhitespaceWithCondition'], Formatter::USE_BEFORE, T_CATCH);
+				$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'addWhitespaceWithCondition'], T_CATCH);
 			}
 		}
 
@@ -158,31 +140,31 @@ class Spaces
 			$beforeParenthesesSettings = $settings['spaces']['before-parentheses'];
 
 			if (isset($beforeParenthesesSettings['if-elseif']) && $beforeParenthesesSettings['if-elseif']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_IF, T_ELSEIF], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_IF, T_ELSEIF], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['for-foreach']) && $beforeParenthesesSettings['for-foreach']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_FOR, T_FOREACH], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_FOR, T_FOREACH], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['catch']) && $beforeParenthesesSettings['catch']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_CATCH], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_CATCH], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['while']) && $beforeParenthesesSettings['while']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_WHILE], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_WHILE], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['catch']) && $beforeParenthesesSettings['catch']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_CATCH], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_CATCH], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['switch']) && $beforeParenthesesSettings['switch']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_SWITCH], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_SWITCH], []]);
 			}
 
 			if (isset($beforeParenthesesSettings['array-declaration']) && $beforeParenthesesSettings['array-declaration']) {
-				$formatter->addTransformation(new Token('('), [$this, 'addWhitespace'], Formatter::USE_BEFORE, [[T_ARRAY], []]);
+				$rules->addRuleBySingleValue('(', TransformationRules::USE_BEFORE, [$this, 'addWhitespace'], [[T_ARRAY], []]);
 			}
 		}
 
@@ -190,40 +172,29 @@ class Spaces
 			$otherSettings = $settings['spaces']['other'];
 
 			if (isset($otherSettings['before-comma']) && $otherSettings['before-comma']) {
-				$formatter->addTransformation(new Token(','), [$this, 'addWhitespace'], Formatter::USE_BEFORE);
+				$rules->addRuleBySingleValue(',', TransformationRules::USE_BEFORE, [$this, 'addWhitespace']);
 			}
 
 			if (isset($otherSettings['after-comma']) && $otherSettings['after-comma']) {
-				$formatter->addTransformation(new Token(','), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+				$rules->addRuleBySingleValue(',', TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($otherSettings['before-semicolon']) && $otherSettings['before-semicolon']) {
-				$formatter->addTransformation(new Token(';'), [$this, 'addWhitespace'], Formatter::USE_BEFORE);
+				$rules->addRuleBySingleValue(';', TransformationRules::USE_BEFORE, [$this, 'addWhitespace']);
 			}
 
 			if (isset($otherSettings['after-semicolon']) && $otherSettings['after-semicolon']) {
-				$formatter->addTransformation(new Token(';'), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+				$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 
 			if (isset($otherSettings['after-typecast']) && $otherSettings['after-typecast']) {
-				$formatter->addTransformation(new Token('(array)', T_ARRAY_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(bool)', T_BOOL_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(boolean)', T_BOOL_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(real)', T_DOUBLE_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(double)', T_DOUBLE_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(float)', T_DOUBLE_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(int)', T_INT_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(integer)', T_INT_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(object)', T_OBJECT_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
-				$formatter->addTransformation(new Token('(string)', T_STRING_CAST), [$this, 'addWhitespace'], Formatter::USE_AFTER);
+				$typecasts = [
+					T_ARRAY_CAST, T_BOOL_CAST, T_DOUBLE_CAST,
+					T_INT_CAST, T_OBJECT_CAST, T_STRING_CAST
+				];
+				$rules->addRuleByType($typecasts, TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 			}
 		}
-	}
-
-	protected function register(Formatter $formatter, Token $token)
-	{
-		$formatter->addTransformation($token, [$this, 'addWhitespace'], Formatter::USE_BEFORE);
-		$formatter->addTransformation($token, [$this, 'addWhitespace'], Formatter::USE_AFTER);
 	}
 
 	public function addWhitespace($token, $tokenList, $processedTokenList, $params)
