@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * This file is part of the PhpFormatter tool
+ *
+ * Copyright (c) 2014 Tomáš Lang
+ */
+
 namespace PhpFormatter;
 
 class Formatter
