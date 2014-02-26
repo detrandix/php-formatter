@@ -35,10 +35,10 @@ class Spaces
 	{
 		$typesWithSpaceAfter = [
 			T_CLASS, T_FUNCTION, T_PUBLIC, T_PROTECTED, T_PRIVATE,
-			T_FINAL, T_PRINT, T_ECHO
+			T_FINAL, T_PRINT, T_ECHO, T_CONST, T_STATIC
 		];
 		$rules->addRuleByType($typesWithSpaceAfter, TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
-		$rules->addRuleByType(T_AS, TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
+		$rules->addRuleByType([T_AS, T_IMPLEMENTS, T_EXTENDS], TransformationRules::USE_BEFORE | TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 
 		if (isset($settings['spaces']['before-keywords'])) {
 			$beforeKeywordsSettings = $settings['spaces']['before-keywords'];

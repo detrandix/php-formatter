@@ -7,14 +7,17 @@ $formatter = PhpFormatter\Formatter::createFromSettings();
 
 $input = <<<DOC
 <?php
-class Test{public test;private test;final protected test;}
+class Test extends AbstractTest implements Countable, AnotherInterface{
+	const TEST = 10;public test;static private test;final protected test;
+}
 DOC;
 
 $output = <<<DOC
 <?php
-class Test{
+class Test extends AbstractTest implements Countable,AnotherInterface{
+const TEST=10;
 public test;
-private test;
+static private test;
 final protected test;
 }
 DOC;
