@@ -10,6 +10,7 @@ $input = <<<DOC
 class Test extends AbstractTest implements Countable, AnotherInterface{
 	const TEST = 10;public test;static private test;final protected test;
 }
+\$class instanceof Test;
 DOC;
 
 $output = <<<DOC
@@ -20,6 +21,7 @@ public test;
 static private test;
 final protected test;
 }
+\$class instanceof Test;
 DOC;
 
 Assert::same($output, $formatter->format($input));
