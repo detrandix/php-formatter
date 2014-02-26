@@ -7,19 +7,34 @@ $formatter = PhpFormatter\Formatter::createFromSettings();
 
 $input = <<<DOC
 <?php
+namespace X as T;
+use Test;
 class Test extends AbstractTest implements Countable, AnotherInterface{
-	const TEST = 10;public test;static private test;final protected test;
+	const TEST = 10;
+	public test;
+	static private test{
+		throw new Exception;
+	}
+	final protected test(array \$t){
+		return 10;
+	}
 }
 \$class instanceof Test;
 DOC;
 
 $output = <<<DOC
 <?php
+namespace X as T;
+use Test;
 class Test extends AbstractTest implements Countable,AnotherInterface{
 const TEST=10;
 public test;
-static private test;
-final protected test;
+static private test{
+throw new Exception;
+}
+final protected test(array \$t){
+return 10;
+}
 }
 \$class instanceof Test;
 DOC;

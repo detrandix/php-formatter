@@ -35,7 +35,8 @@ class Spaces
 	{
 		$typesWithSpaceAfter = [
 			T_CLASS, T_FUNCTION, T_PUBLIC, T_PROTECTED, T_PRIVATE,
-			T_FINAL, T_PRINT, T_ECHO, T_CONST, T_STATIC
+			T_FINAL, T_PRINT, T_ECHO, T_CONST, T_STATIC, T_RETURN,
+			T_THROW, T_NEW, T_NAMESPACE, T_USE, T_ARRAY
 		];
 		$rules->addRuleByType($typesWithSpaceAfter, TransformationRules::USE_AFTER, [$this, 'addWhitespace']);
 
