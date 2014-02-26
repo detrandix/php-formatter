@@ -31,6 +31,24 @@ DOC;
 
 Assert::same($output, $formatter->format($input));
 
+$input = <<<DOC
+<?php
+/**
+ * Some comment
+ */
+test();
+DOC;
+
+$output = <<<DOC
+<?php
+/**
+ * Some comment
+ */
+test();
+DOC;
+
+Assert::same($output, $formatter->format($input));
+
 
 
 $formatter = createFormatter(['else-elseif' => TRUE]);

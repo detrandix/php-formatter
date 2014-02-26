@@ -34,6 +34,7 @@ class NewLine
 	public function register(TransformationRules $rules, $settings)
 	{
 		$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addNewLineAfterSemicolon']);
+		$rules->addRuleByType(T_DOC_COMMENT, TransformationRules::USE_AFTER, [$this, 'addNewLine']);
 
 		if (isset($settings['new-line'])) {
 			$newLineSettings = $settings['new-line'];
@@ -60,13 +61,23 @@ class NewLine
 	public function addNewLineAfterSemicolon(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
 		if (!$this->controlStructures->isActualType(T_FOR)) {
-			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
-				$processedTokenList->pop();
-			}
-
-			$processedTokenList[] = new Token("\n", T_WHITESPACE);
-			$this->indent->addIndent($processedTokenList);
+			$this->addNewLine($token, $tokenList, $processedTokenList);
 		}
+	}
+
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 */
+	public function addNewLine(Token $token, TokenList $tokenList, TokenList $processedTokenList)
+	{
+		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+			$processedTokenList->pop();
+		}
+
+		$processedTokenList[] = new Token("\n", T_WHITESPACE);
+		$this->indent->addIndent($processedTokenList);
 	}
 
 	/**
