@@ -11,18 +11,29 @@ use PhpFormatter\TransformationRules;
 class Braces
 {
 
+	/** @var ControlStructures */
 	protected $controlStructures;
 
+	/** @var Indent */
 	protected $indent;
 
+	/** @var string[] */
 	static protected $POSSIBLE_OPTIONS = ['new-line', 'new-line-idented', 'same-line'];
 
+	/**
+	 * @param ControlStructures $controlStructures
+	 * @param Indent            $indent
+	 */
 	public function __construct(ControlStructures $controlStructures, Indent $indent)
 	{
 		$this->controlStructures = $controlStructures;
 		$this->indent = $indent;
 	}
 
+	/**
+	 * @param TransformationRules $rules
+	 * @param array               $settings
+	 */
 	public function register(TransformationRules $rules, $settings)
 	{
 		$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'processLeftAfter']);
@@ -63,6 +74,12 @@ class Braces
 		}
 	}
 
+	/**
+	 * @param TransformationRules $rules
+	 * @param int                 $type
+	 * @param string              $setting
+	 * @param bool                $afterEndBrace
+	 */
 	protected function registerRules(TransformationRules $rules, $type, $setting, $afterEndBrace = FALSE)
 	{
 		$rules->addRuleBySingleValue('{', TransformationRules::USE_BEFORE, [$this, 'processLeftBefore'], [$type, $setting]);
@@ -74,7 +91,13 @@ class Braces
 		}
 	}
 
-	public function processLeftBefore($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 * @param array     $params
+	 */
+	public function processLeftBefore(Token $token, TokenList $tokenList, TokenList $processedTokenList, array $params)
 	{
 		if ($this->controlStructures->isActualType($params[0])) {
 			switch ($params[1]) {
@@ -92,7 +115,12 @@ class Braces
 		}
 	}
 
-	public function processLeftAfter($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 */
+	public function processLeftAfter(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
 		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
 			$processedTokenList->pop();
@@ -102,7 +130,13 @@ class Braces
 		$this->indent->addIndent($processedTokenList);
 	}
 
-	public function processRightBefore($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token      $token
+	 * @param TokenList  $tokenList
+	 * @param TokenList  $processedTokenList
+	 * @param array|null $params
+	 */
+	public function processRightBefore(Token $token, TokenList $tokenList, TokenList $processedTokenList, $params)
 	{
 		if ($params === NULL) {
 			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
@@ -123,9 +157,12 @@ class Braces
 	}
 
 	/**
-	 * @todo tohle dat obecne, a pak si jednotlive prikazy T_ELSEIF pripadne ten enter pres sebou smazou
+	 * @param Token      $token
+	 * @param TokenList  $tokenList
+	 * @param TokenList  $processedTokenList
+	 * @param array|null $params
 	 */
-	public function processRightAfter($token, $tokenList, $processedTokenList, $params)
+	public function processRightAfter(Token $token, TokenList $tokenList, TokenList $processedTokenList, $params)
 	{
 		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
 			$processedTokenList->pop();

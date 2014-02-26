@@ -11,16 +11,26 @@ use PhpFormatter\TransformationRules;
 class Spaces
 {
 
+	/** @var ControlStructures */
 	protected $controlStructures;
 
+	/** @var Indent */
 	protected $indent;
 
+	/**
+	 * @param ControlStructures $controlStructures
+	 * @param Indent            $indent
+	 */
 	public function __construct(ControlStructures $controlStructures, Indent $indent)
 	{
 		$this->controlStructures = $controlStructures;
 		$this->indent = $indent;
 	}
 
+	/**
+	 * @param TransformationRules $rules
+	 * @param array               $settings
+	 */
 	public function register(TransformationRules $rules, $settings)
 	{
 		$typesWithSpaceAfter = [
@@ -197,7 +207,13 @@ class Spaces
 		}
 	}
 
-	public function addWhitespace($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token      $token
+	 * @param TokenList  $tokenList
+	 * @param TokenList  $processedTokenList
+	 * @param array|null $params
+	 */
+	public function addWhitespace(Token $token, TokenList $tokenList, TokenList $processedTokenList, $params)
 	{
 		$addWhitespace = TRUE;
 
@@ -220,7 +236,13 @@ class Spaces
 		}
 	}
 
-	public function addWhitespaceWithCondition($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 * @param int       $params
+	 */
+	public function addWhitespaceWithCondition(Token $token, TokenList $tokenList, TokenList $processedTokenList, $params)
 	{
 		if ($this->controlStructures->isActualType($params)) {
 			$processedTokenList[] = new Token(' ', T_WHITESPACE);

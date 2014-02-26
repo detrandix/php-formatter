@@ -8,6 +8,7 @@ class TransformationRules
 	const USE_BEFORE = 1;
 	const USE_AFTER = 2;
 
+	/** @var array */
 	protected $rules;
 
 	public function __construct()
@@ -15,6 +16,12 @@ class TransformationRules
 		$this->rules = [];
 	}
 
+	/**
+	 * @param int|int[] $types
+	 * @param int       $use
+	 * @param callback  $callback
+	 * @param mixed     $params
+	 */
 	public function addRuleByType($types, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $types as $type) {
@@ -22,6 +29,12 @@ class TransformationRules
 		}
 	}
 
+	/**
+	 * @param string|string[] $values
+	 * @param int             $use
+	 * @param callback        $callback
+	 * @param mixed           $params
+	 */
 	public function addRuleBySingleValue($values, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $values as $value) {
@@ -29,6 +42,11 @@ class TransformationRules
 		}
 	}
 
+	/**
+	 * @param  Token $token
+	 *
+	 * @return array
+	 */
 	public function getTransformations(Token $token)
 	{
 		$transformations = [
@@ -58,6 +76,12 @@ class TransformationRules
 		return $transformations;
 	}
 
+	/**
+	 * @param  int $value
+	 * @param  int $flag
+	 *
+	 * @return bool
+	 */
 	protected function hasFlag($value, $flag)
 	{
 		return ($value & $flag) === $flag;

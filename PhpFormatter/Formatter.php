@@ -4,6 +4,8 @@ namespace PhpFormatter;
 
 class Formatter
 {
+
+	/** @var TransformationRules */
 	protected $transformationRules;
 
 	private function __construct()
@@ -11,6 +13,11 @@ class Formatter
 		$this->transformationRules = new TransformationRules;
 	}
 
+	/**
+	 * @param  array $settings
+	 *
+	 * @return self
+	 */
 	public static function createFromSettings($settings = [])
 	{
 		$formatter = new self;
@@ -33,11 +40,19 @@ class Formatter
 		return $formatter;
 	}
 
+	/**
+	 * @return TransformationRules
+	 */
 	public function getTransformationRules()
 	{
 		return $this->transformationRules;
 	}
 
+	/**
+	 * @param  string $code
+	 *
+	 * @return string
+	 */
 	public function format($code)
 	{
 		$tokenList = new TokenList(token_get_all($code));
@@ -45,6 +60,11 @@ class Formatter
 		return $this->render($this->processTokenList($tokenList));
 	}
 
+	/**
+	 * @param  TokenList $tokenList
+	 *
+	 * @return TokenList
+	 */
 	public function processTokenList(TokenList $tokenList)
 	{
 		$processedTokenList = new TokenList;
@@ -66,7 +86,13 @@ class Formatter
 		return $processedTokenList;
 	}
 
-	protected function processToken($token, $tokenList, $processedTokenList, $transformations)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 * @param array     $transformations
+	 */
+	protected function processToken(Token $token, TokenList $tokenList, TokenList $processedTokenList, array $transformations)
 	{
 		foreach ($transformations[transformationRules::USE_BEFORE] as $transformation) {
 			$transformation[0]($token, $tokenList, $processedTokenList, $transformation[1]);
@@ -79,6 +105,11 @@ class Formatter
 		}
 	}
 
+	/**
+	 * @param  TokenList $tokenList
+	 *
+	 * @return string
+	 */
 	public function render(TokenList $tokenList)
 	{
 		$string = '';

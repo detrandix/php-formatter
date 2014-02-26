@@ -9,12 +9,18 @@ class Indent
 	const TYPE_TAB = "\t";
 	const TYPE_SPACE = ' ';
 
+	/** @var string */
 	protected $type;
 
+	/** @var int */
 	protected $count;
 
+	/** @var int */
 	protected $indent;
 
+	/**
+	 * @param array $settings
+	 */
 	public function __construct($settings = [])
 	{
 		$type = self::TYPE_NONE;
@@ -47,12 +53,19 @@ class Indent
 		$this->indent = 0;
 	}
 
+	/**
+	 * @param  TransformationRules $rules
+	 */
 	public function register(TransformationRules $rules)
 	{
 		$rules->addRuleBySingleValue('{', TransformationRules::USE_AFTER, [$this, 'incIndent']);
 		$rules->addRuleBySingleValue('}', TransformationRules::USE_BEFORE, [$this, 'decIndent']);
 	}
 
+	/**
+	 * @param TokenList $tokenList
+	 * @param int       $indentAdd
+	 */
 	public function addIndent(TokenList $tokenList, $indentAdd = 0)
 	{
 		$indent = $this->indent + $indentAdd;

@@ -5,16 +5,27 @@ namespace PhpFormatter;
 class Token
 {
 
+	/** @var string */
 	protected $value;
 
+	/** @var mixed */
 	protected $type;
 
+	/**
+	 * @param string $value
+	 * @param mixed  $type
+	 */
 	public function __construct($value, $type = NULL)
 	{
 		$this->value = $value;
 		$this->type = $type;
 	}
 
+	/**
+	 * @param  mixed $zendToken
+	 *
+	 * @return self
+	 */
 	public static function createFromZendToken($zendToken)
 	{
 		if (is_array($zendToken)) {
@@ -28,6 +39,11 @@ class Token
 		return new self($value, $type);
 	}
 
+	/**
+	 * @param  int|string|null $type
+	 *
+	 * @return bool
+	 */
 	public function isType($type)
 	{
 		if ($type === NULL) {
@@ -39,7 +55,12 @@ class Token
 		}
 	}
 
-	public function isInTypes($types)
+	/**
+	 * @param  array $types
+	 *
+	 * @return bool
+	 */
+	public function isInTypes(array $types)
 	{
 		foreach ($types as $type) {
 			if ($this->isType($type)) {
@@ -49,17 +70,30 @@ class Token
 		return FALSE;
 	}
 
+	/**
+	 * @return string|null
+	 */
 	public function getType()
 	{
 		return $this->type ? token_name($this->type) : NULL;
 	}
 
+	/**
+	 * @param  string $value
+	 *
+	 * @return bool
+	 */
 	public function isSingleValue($value)
 	{
 		return $this->type === NULL && $this->value === $value;
 	}
 
-	public function isInSingleValues($values)
+	/**
+	 * @param  array $values
+	 *
+	 * @return bool
+	 */
+	public function isInSingleValues(array $values)
 	{
 		if ($this->type !== NULL) {
 			return FALSE;
@@ -68,21 +102,35 @@ class Token
 		}
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getValue()
 	{
 		return $this->value;
 	}
 
+	/**
+	 * @param string $value
+	 */
 	public function setValue($value)
 	{
 		$this->value = $value;
 	}
 
+	/**
+	 * @param  Token $token
+	 *
+	 * @return bool
+	 */
 	public function isSame(Token $token)
 	{
 		return $this->getType() === $token->getType() && $this->getValue() == $token->getValue();
 	}
 
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return $this->value;

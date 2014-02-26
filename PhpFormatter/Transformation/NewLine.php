@@ -11,16 +11,26 @@ use PhpFormatter\TransformationRules;
 class NewLine
 {
 
+	/** @var ControlStructures */
 	protected $controlStructures;
 
+	/** @var Indent */
 	protected $indent;
 
+	/**
+	 * @param ControlStructures $controlStructures
+	 * @param Indent            $indent
+	 */
 	public function __construct(ControlStructures $controlStructures, Indent $indent)
 	{
 		$this->controlStructures = $controlStructures;
 		$this->indent = $indent;
 	}
 
+	/**
+	 * @param TransformationRules $rules
+	 * @param array               $settings
+	 */
 	public function register(TransformationRules $rules, $settings)
 	{
 		$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addNewLineAfterSemicolon']);
@@ -42,7 +52,12 @@ class NewLine
 		}
 	}
 
-	public function addNewLineAfterSemicolon($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 */
+	public function addNewLineAfterSemicolon(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
 		if (!$this->controlStructures->isActualType(T_FOR)) {
 			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
@@ -54,7 +69,12 @@ class NewLine
 		}
 	}
 
-	public function addNewLineBefore($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 */
+	public function addNewLineBefore(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
 		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
 			$processedTokenList->pop();
@@ -63,7 +83,12 @@ class NewLine
 		$processedTokenList[] = new Token("\n", T_WHITESPACE);
 	}
 
-	public function addNewLineBeforeWhile($token, $tokenList, $processedTokenList, $params)
+	/**
+	 * @param Token     $token
+	 * @param TokenList $tokenList
+	 * @param TokenList $processedTokenList
+	 */
+	public function addNewLineBeforeWhile(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
 		if ($this->controlStructures->isLastType(T_DO)) {
 			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {

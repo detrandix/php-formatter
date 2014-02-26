@@ -5,8 +5,10 @@ namespace PhpFormatter;
 class ControlStructures
 {
 
+	/** @var array */
 	protected $controls;
 
+	/** @var Token|null */
 	protected $lastPopped;
 
 	public function __construct()
@@ -15,6 +17,9 @@ class ControlStructures
 		$this->lastPopped = NULL;
 	}
 
+	/**
+	 * @param TransformationRules $rules
+	 */
 	public function register(TransformationRules $rules)
 	{
 		$controls = [
@@ -28,6 +33,9 @@ class ControlStructures
 		$rules->addRuleBySingleValue(';', TransformationRules::USE_AFTER, [$this, 'addSemicolon']);
 	}
 
+	/**
+	 * @param Token $token
+	 */
 	public function addControl(Token $token)
 	{
 		$this->controls[] = [$token, FALSE];
@@ -62,6 +70,11 @@ class ControlStructures
 		}
 	}
 
+	/**
+	 * @param  int $type
+	 *
+	 * @return bool
+	 */
 	public function isActualType($type)
 	{
 		if (count($this->controls) === 0)
@@ -75,6 +88,11 @@ class ControlStructures
 		return $this->controls[$lastIndex][0]->isType($type);
 	}
 
+	/**
+	 * @param  int $type
+	 *
+	 * @return bool
+	 */
 	public function isLastType($type)
 	{
 		if ($this->lastPopped === NULL || $this->lastPopped[0] === NULL) {
