@@ -231,6 +231,11 @@ class Spaces
 		$addWhitespace = TRUE;
 
 		if ($params !== NULL) {
+			// @todo muze to tady byt obecne?
+			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+				$processedTokenList->pop();
+			}
+
 			$addWhitespace =
 				$processedTokenList->tail()->isInTypes($params[0])
 				|| $processedTokenList->tail()->isInSingleValues($params[1]);

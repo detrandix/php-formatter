@@ -25,15 +25,17 @@ $formatter = createFormatter(['class-declaration' => 'new-line']);
 
 $input = <<<DOC
 <?php
-class Test{public function test(){};public function test2(){};}
+class Test{public function test(){}public function test2(){}}
 DOC;
 
 $output = <<<DOC
 <?php
 class Test
 {
-	public function test(){};
-	public function test2(){};
+	public function test(){
+	}
+	public function test2(){
+	}
 }
 DOC;
 
@@ -45,15 +47,17 @@ $formatter = createFormatter(['class-declaration' => 'new-line-idented']);
 
 $input = <<<DOC
 <?php
-class Test{public function test(){};public function test2(){};}
+class Test{public function test(){}public function test2(){}}
 DOC;
 
 $output = <<<DOC
 <?php
 class Test
 	{
-	public function test(){};
-	public function test2(){};
+	public function test(){
+	}
+	public function test2(){
+	}
 	}
 DOC;
 
@@ -65,14 +69,16 @@ $formatter = createFormatter(['class-declaration' => 'same-line']);
 
 $input = <<<DOC
 <?php
-class Test{public function test(){};public function test2(){};}
+class Test{public function test(){}public function test2(){}}
 DOC;
 
 $output = <<<DOC
 <?php
 class Test{
-	public function test(){};
-	public function test2(){};
+	public function test(){
+	}
+	public function test2(){
+	}
 }
 DOC;
 

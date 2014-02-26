@@ -30,7 +30,7 @@ while(TRUE){
 }
 do{
 	test();
-} while(TRUE);
+}while(TRUE);
 DOC;
 
 $output = <<<DOC

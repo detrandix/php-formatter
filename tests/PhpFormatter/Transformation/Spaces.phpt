@@ -12,7 +12,9 @@ DOC;
 
 $output = <<<DOC
 <?php
-class Test{public test;private test;final protected test;}
+class Test{
+public test;private test;final protected test;
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -26,7 +28,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-function test(){}
+function test(){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -54,7 +57,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-foreach(\$values as \$value){}
+foreach(\$values as \$value){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));

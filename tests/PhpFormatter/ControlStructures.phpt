@@ -55,6 +55,3 @@ $controlStructures->addControl(new Token('for', T_FOR));
 $controlStructures->addSemicolon();
 
 Assert::true($controlStructures->isActualType(T_FOR));
-
-
-

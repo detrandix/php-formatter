@@ -19,12 +19,15 @@ $formatter = createFormatter(['while' => TRUE]);
 
 $input = <<<DOC
 <?php
-while(TRUE){};do{}while(TRUE);
+while(TRUE){}do{}while(TRUE)
 DOC;
 
 $output = <<<DOC
 <?php
-while(TRUE){};do{} while(TRUE);
+while(TRUE){
+}
+do{
+} while(TRUE)
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -40,7 +43,10 @@ DOC;
 
 $output = <<<DOC
 <?php
-if(TRUE){} elseif(TRUE){} else{}
+if(TRUE){
+} elseif(TRUE){
+} else{
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -56,7 +62,9 @@ DOC;
 
 $output = <<<DOC
 <?php
-try{} catch(Exception\$e){}
+try{
+} catch(Exception\$e){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));

@@ -25,6 +25,10 @@ class Braces
 
 	public function registerToFormatter(Formatter $formatter, $settings)
 	{
+		$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER);
+		$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, NULL);
+		$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER);
+
 		if (isset($settings['braces'])) {
 			$bracesSettings = $settings['braces'];
 
@@ -42,22 +46,22 @@ class Braces
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_ELSEIF, $bracesSettings['if-elseif-else']]);
 
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_ELSE, $bracesSettings['if-elseif-else']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_ELSE, $bracesSettings['if-elseif-else']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_ELSE, $bracesSettings['if-elseif-else']]);
 			}
 
 			if (isset($bracesSettings['for-foreach']) && in_array($bracesSettings['for-foreach'], self::$POSSIBLE_OPTIONS)) {
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_FOR, $bracesSettings['for-foreach']]);
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_FOR, $bracesSettings['for-foreach']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_FOR, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_FOR, $bracesSettings['for-foreach']]);
 
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_FOREACH, $bracesSettings['for-foreach']]);
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_FOREACH, $bracesSettings['for-foreach']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_FOREACH, $bracesSettings['for-foreach']]);
-				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_FOREACH, $bracesSettings['for-foreach']]);
 			}
 
 			if (isset($bracesSettings['while-do']) && in_array($bracesSettings['while-do'], self::$POSSIBLE_OPTIONS)) {
@@ -85,6 +89,7 @@ class Braces
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
 				$formatter->addTransformation(new Token('{'), [$this, 'processLeftAfter'], Formatter::USE_AFTER, [T_CATCH, $bracesSettings['try-catch']]);
 				$formatter->addTransformation(new Token('}'), [$this, 'processRightBefore'], Formatter::USE_BEFORE, [T_CATCH, $bracesSettings['try-catch']]);
+				$formatter->addTransformation(new Token('}'), [$this, 'processRightAfter'], Formatter::USE_AFTER, [T_CATCH, $bracesSettings['try-catch']]);
 			}
 		}
 	}
@@ -109,15 +114,24 @@ class Braces
 
 	public function processLeftAfter($token, $tokenList, $processedTokenList, $params)
 	{
-		if ($this->controlStructures->isActualType($params[0])) {
-			$processedTokenList[] = new Token("\n", T_WHITESPACE);
-			$this->indent->addIndent($processedTokenList);
+		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+			$processedTokenList->pop();
 		}
+
+		$processedTokenList[] = new Token("\n", T_WHITESPACE);
+		$this->indent->addIndent($processedTokenList);
 	}
 
 	public function processRightBefore($token, $tokenList, $processedTokenList, $params)
 	{
-		if ($this->controlStructures->isActualType($params[0])) {
+		if ($params === NULL) {
+			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+				$processedTokenList->pop();
+			}
+
+			$processedTokenList[] = new Token("\n", T_WHITESPACE);
+			$this->indent->addIndent($processedTokenList);
+		} elseif ($this->controlStructures->isActualType($params[0])) {
 			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
 				$processedTokenList->pop();
 			}
@@ -128,11 +142,23 @@ class Braces
 		}
 	}
 
+	/**
+	 * @todo tohle dat obecne, a pak si jednotlive prikazy T_ELSEIF pripadne ten enter pres sebou smazou
+	 */
 	public function processRightAfter($token, $tokenList, $processedTokenList, $params)
 	{
-		if ($this->controlStructures->isLastType($params[0])) {
-			$processedTokenList[] = new Token("\n", T_WHITESPACE);
+		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+			$processedTokenList->pop();
+		}
 
+		$skipNewline =
+			($params[0] === T_WHILE && $this->controlStructures->isLastType(T_DO))
+			|| ($params[0] === T_CATCH)
+			|| ($params[0] === T_ELSEIF)
+			|| ($params[0] === T_ELSE);
+
+		if (!$skipNewline) {
+			$processedTokenList[] = new Token("\n", T_WHITESPACE);
 			$this->indent->addIndent($processedTokenList);
 		}
 	}

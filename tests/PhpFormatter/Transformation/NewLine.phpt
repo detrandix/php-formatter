@@ -25,7 +25,8 @@ DOC;
 $output = <<<DOC
 <?php
 test();
-for(;;){}
+for(;;){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -41,10 +42,15 @@ DOC;
 
 $output = <<<DOC
 <?php
-if(TRUE){}
-elseif(FALSE){}
-else{}
+if(TRUE){
+}
+elseif(FALSE){
+}
+else{
+}
 DOC;
+
+Assert::same($output, $formatter->format($input));
 
 
 
@@ -57,7 +63,10 @@ DOC;
 
 $output = <<<DOC
 <?php
-while(TRUE){}do{}
+while(TRUE){
+}
+do{
+}
 while(TRUE)
 DOC;
 
@@ -74,8 +83,10 @@ DOC;
 
 $output = <<<DOC
 <?php
-try{}
-catch(Exception\$e){}
+try{
+}
+catch(Exception\$e){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));

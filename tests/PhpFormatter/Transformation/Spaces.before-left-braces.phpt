@@ -19,12 +19,14 @@ $formatter = createFormatter(['class-declaration' => TRUE]);
 
 $input = <<<DOC
 <?php
-class Test{}
+class Test{
+}
 DOC;
 
 $output = <<<DOC
 <?php
-class Test {}
+class Test {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -40,7 +42,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-function test() {}
+function test() {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -51,12 +54,15 @@ $formatter = createFormatter(['if-elseif' => TRUE]);
 
 $input = <<<DOC
 <?php
-if(TRUE){}elseif(FALSE){};
+if(TRUE){}elseif(FALSE){}
 DOC;
 
 $output = <<<DOC
 <?php
-if(TRUE) {}elseif(FALSE) {};
+if(TRUE) {
+}
+elseif(FALSE) {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -67,12 +73,15 @@ $formatter = createFormatter(['else' => TRUE]);
 
 $input = <<<DOC
 <?php
-if(TRUE){}else{};
+if(TRUE){}else{}
 DOC;
 
 $output = <<<DOC
 <?php
-if(TRUE){}else {};
+if(TRUE){
+}
+else {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -88,7 +97,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-while(TRUE) {}
+while(TRUE) {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -99,12 +109,15 @@ $formatter = createFormatter(['for-foreach' => TRUE]);
 
 $input = <<<DOC
 <?php
-for(;;){}foreach(\$a as \$b){};
+for(;;){}foreach(\$a as \$b){}
 DOC;
 
 $output = <<<DOC
 <?php
-for(;;) {}foreach(\$a as \$b) {};
+for(;;) {
+}
+foreach(\$a as \$b) {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -115,12 +128,14 @@ $formatter = createFormatter(['do' => TRUE]);
 
 $input = <<<DOC
 <?php
-do{}while(TRUE);
+do{}while(TRUE)
 DOC;
 
 $output = <<<DOC
 <?php
-do {}while(TRUE);
+do {
+}
+while(TRUE)
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -136,7 +151,8 @@ DOC;
 
 $output = <<<DOC
 <?php
-switch(TRUE) {}
+switch(TRUE) {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -152,7 +168,10 @@ DOC;
 
 $output = <<<DOC
 <?php
-try {}catch(Exception\$e){}
+try {
+}
+catch(Exception\$e){
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));
@@ -168,7 +187,10 @@ DOC;
 
 $output = <<<DOC
 <?php
-try{}catch(Exception\$e) {}
+try{
+}
+catch(Exception\$e) {
+}
 DOC;
 
 Assert::same($output, $formatter->format($input));

@@ -55,12 +55,20 @@ class NewLine
 
 	public function addNewLineBefore($token, $tokenList, $processedTokenList, $params)
 	{
+		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+			$processedTokenList->pop();
+		}
+
 		$processedTokenList[] = new Token("\n", T_WHITESPACE);
 	}
 
 	public function addNewLineBeforeWhile($token, $tokenList, $processedTokenList, $params)
 	{
 		if ($this->controlStructures->isLastType(T_DO)) {
+			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+				$processedTokenList->pop();
+			}
+
 			$processedTokenList[] = new Token("\n", T_WHITESPACE);
 		}
 	}
