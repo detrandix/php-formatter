@@ -25,7 +25,11 @@ class TransformationRules
 	public function addRuleByType($types, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $types as $type) {
-			$this->rules[] = ['type', token_name($type), $use, $callback, $params];
+			if (!isset($this->rules[token_name($type)])) {
+				$this->rules[token_name($type)] = [];
+			}
+
+			$this->rules[token_name($type)][] = ['type', token_name($type), $use, $callback, $params];
 		}
 	}
 
@@ -38,7 +42,11 @@ class TransformationRules
 	public function addRuleBySingleValue($values, $use, $callback, $params = NULL)
 	{
 		foreach ((array) $values as $value) {
-			$this->rules[] = ['value', $value, $use, $callback, $params];
+			if (!isset($this->rules[$value])) {
+				$this->rules[$value] = [];
+			}
+
+			$this->rules[$value][] = ['value', $value, $use, $callback, $params];
 		}
 	}
 
@@ -54,15 +62,10 @@ class TransformationRules
 			self::USE_AFTER => []
 		];
 
-		$type = $token->getType();
-		$value = $token->getValue();
+		$key = $token->getType() ?: $token->getValue();
 
-		foreach ($this->rules as $rule) {
-			$useTransformation =
-				($rule[0] === 'type' && $type === $rule[1])
-				|| ($rule[0] === 'value' && $type === NULL && $value === $rule[1]);
-
-			if ($useTransformation) {
+		if (isset($this->rules[$key])) {
+			foreach ($this->rules[$key] as $rule) {
 				if ($this->hasFlag($rule[2], self::USE_BEFORE)) {
 					$transformations[self::USE_BEFORE][] = [$rule[3], $rule[4]];
 				}
