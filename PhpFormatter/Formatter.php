@@ -85,6 +85,27 @@ class Formatter
 				$transformations = $this->transformationRules->getTransformations($token);
 
 				$this->processToken($token, $tokenList, $processedTokenList, $transformations);
+			} else {
+				$whitespace = $token->getValue();
+
+				while (!$tokenList->isEmpty() && $tokenList->head()->isType(T_WHITESPACE)) {
+					$whitespace .= $tokenList->shift()->getValue();
+				}
+
+				$countNewLines = max(0, substr_count($token->getValue(), "\n") - 1);
+
+				if ($countNewLines > 0) {
+					$spacesBefore = [];
+					while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+						$spacesBefore[] = $processedTokenList->pop();
+					}
+
+					$processedTokenList[] = new Token(str_repeat("\n", $countNewLines), T_WHITESPACE);
+
+					foreach (array_reverse($spacesBefore) as $space) {
+						$processedTokenList[] = $space;
+					}
+				}
 			}
 		}
 
