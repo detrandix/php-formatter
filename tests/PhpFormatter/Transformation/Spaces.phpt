@@ -9,7 +9,7 @@ $input = <<<DOC
 <?php
 namespace X as T;
 use Test;
-class Test extends AbstractTest implements Countable, AnotherInterface{
+abstract class Test extends AbstractTest implements Countable, AnotherInterface{
 	const TEST = 10;
 	public test;
 	static private test{
@@ -26,7 +26,7 @@ $output = <<<DOC
 <?php
 namespace X as T;
 use Test;
-class Test extends AbstractTest implements Countable,AnotherInterface{
+abstract class Test extends AbstractTest implements Countable,AnotherInterface{
 const TEST=10;
 public test;
 static private test{
