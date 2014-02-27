@@ -70,11 +70,19 @@ class TokenList implements \ArrayAccess, \IteratorAggregate, \Countable
 	}
 
 	/**
+	 * @param  $depth int
+	 *
 	 * @return Token|NULL
 	 */
-	public function tail()
+	public function tail($depth = 0)
 	{
-		return end($this->tokens) ?: NULL;
+		if ($depth > 0) {
+			$index = count($this->tokens) - (1 + $depth);
+
+			return $index >= 0 ? $this->tokens[$index] : NULL;
+		} else {
+			return end($this->tokens) ?: NULL;
+		}
 	}
 
 	/**

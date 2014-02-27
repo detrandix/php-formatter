@@ -12,6 +12,8 @@ Assert::false($tokenList->isEmpty());
 
 Assert::same($tokenList->count(), 2);
 
+Assert::true($tokenList->tail(1)->isSingleValue('.'));
+
 $head = $tokenList->head();
 Assert::true($head instanceof Token);
 Assert::same($head, $tokenList->shift());
@@ -23,3 +25,5 @@ Assert::same($tail, $tokenList->pop());
 Assert::true($tail->isType(T_STRING));
 
 Assert::true($tokenList->isEmpty());
+
+Assert::null($tokenList->tail(1));

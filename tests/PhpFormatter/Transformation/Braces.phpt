@@ -21,3 +21,15 @@ if(FALSE){
 DOC;
 
 Assert::same($output, $formatter->format($input));
+
+$input = <<<DOC
+<?php
+\$test->{\$a}=1;
+DOC;
+
+$output = <<<DOC
+<?php
+\$test->{\$a}=1;
+DOC;
+
+Assert::same($output, $formatter->format($input));

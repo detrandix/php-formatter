@@ -131,12 +131,14 @@ class Braces
 	 */
 	public function processLeftAfter(Token $token, TokenList $tokenList, TokenList $processedTokenList)
 	{
-		while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
-			$processedTokenList->pop();
-		}
+		if (!$tokenList->head()->isType(T_VARIABLE)) {
+			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+				$processedTokenList->pop();
+			}
 
-		$processedTokenList[] = new Token("\n", T_WHITESPACE);
-		$this->indent->addIndent($processedTokenList);
+			$processedTokenList[] = new Token("\n", T_WHITESPACE);
+			$this->indent->addIndent($processedTokenList);
+		}
 	}
 
 	/**
@@ -148,12 +150,14 @@ class Braces
 	public function processRightBefore(Token $token, TokenList $tokenList, TokenList $processedTokenList, $params)
 	{
 		if ($params === NULL) {
-			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
-				$processedTokenList->pop();
-			}
+			if (!$processedTokenList->tail()->isType(T_VARIABLE)) {
+				while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
+					$processedTokenList->pop();
+				}
 
-			$processedTokenList[] = new Token("\n", T_WHITESPACE);
-			$this->indent->addIndent($processedTokenList);
+				$processedTokenList[] = new Token("\n", T_WHITESPACE);
+				$this->indent->addIndent($processedTokenList);
+			}
 		} elseif ($this->controlStructures->isActualType($params[0])) {
 			while ($processedTokenList->tail()->isType(T_WHITESPACE)) {
 				$processedTokenList->pop();
@@ -181,7 +185,8 @@ class Braces
 			($params[0] === T_WHILE && $this->controlStructures->isLastType(T_DO))
 			|| ($params[0] === T_CATCH)
 			|| ($params[0] === T_ELSEIF)
-			|| ($params[0] === T_ELSE);
+			|| ($params[0] === T_ELSE)
+			|| $processedTokenList->tail(1)->isType(T_VARIABLE);
 
 		if (!$skipNewline) {
 			$processedTokenList[] = new Token("\n", T_WHITESPACE);
